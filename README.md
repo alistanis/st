@@ -8,6 +8,16 @@ st is a command line utility for tagging structs in your Go code.
 Get it: 
 ```go get github.com/alistanis/st```
 
+```
+usage: st [flags] [path ...]
+  -a	Sets mode to append mode. The default is to overwrite existing tags.
+  -c	Sets the struct tag to camel case
+  -s	Sets the struct tag to snake case
+  -t    The struct tag to use when tagging. Example: -t=json (default "json")
+  -v	Sets mode to verbose.
+  -w	Sets mode to write to source file.
+```
+
 Use it:
 
 ```st -s -a -v -t=msgpack $GOPATH/src/github.com/alistanis/st/etc/etc.go```

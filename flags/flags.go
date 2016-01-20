@@ -24,7 +24,7 @@ const (
 )
 
 func StringVars() {
-	flag.StringVar(&Tag, "t", "json", "The struct tag to use when tagging. Example: `json:\"var_name\"`")
+	flag.StringVar(&Tag, "t", "json", "The struct tag to use when tagging. Example: -t=json (default \"json\")")
 }
 
 func BoolVars() {
