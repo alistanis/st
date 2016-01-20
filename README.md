@@ -6,7 +6,7 @@ st is a command line utility for tagging structs in your Go code.
 ---
 
 Get it: 
-```go get https://github.com/alistanis/st```
+```go get github.com/alistanis/st```
 
 Use it:
 
