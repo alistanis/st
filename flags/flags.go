@@ -24,14 +24,14 @@ const (
 )
 
 func StringVars() {
-	flag.StringVar(&Tag, "t", "json", "The struct tag to use when tagging. Example: -t=json (default \"json\")")
+	flag.StringVar(&Tag, "t", "json", "The struct tag to use when tagging. Example: -t=json ")
 }
 
 func BoolVars() {
 	flag.BoolVar(&c, "c", false, "Sets the struct tag to camel case")
 	flag.BoolVar(&s, "s", false, "Sets the struct tag to snake case")
 	flag.BoolVar(&Append, "a", false, "Sets mode to append mode. The default is to overwrite existing tags.")
-	flag.BoolVar(&Verbose, "v", false, "Sets mode to verbose. (prints extra information)")
+	flag.BoolVar(&Verbose, "v", false, "Sets mode to verbose.")
 	flag.BoolVar(&Write, "w", false, "Sets mode to write to source file.")
 }
 
