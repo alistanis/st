@@ -74,21 +74,23 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 			fmt.Printf("Could not find name for field: %+v\n", f)
 			continue
 		}
-		name := f.Names[0].Name
-		formattedName := FormatFieldName(name)
-		tag := f.Tag
-		if tag != nil {
-			val := tag.Value
-			// remove `'s from string and convert to a reflect.StructTag so we can use reflect.StructTag().Get() call
-			reflectTag := reflect.StructTag(val[1 : len(val)-1])
-			currentTagValue := reflectTag.Get(flags.Tag)
-			if currentTagValue != "" {
-				sterrors.Printf("Existing tag found: TagName: %s, TagValue: %s - Skipping Tag\n", flags.Tag, currentTagValue)
-				continue
+		if f.Names[0].IsExported() {
+			name := f.Names[0].Name
+			formattedName := FormatFieldName(name)
+			tag := f.Tag
+			if tag != nil {
+				val := tag.Value
+				// remove `'s from string and convert to a reflect.StructTag so we can use reflect.StructTag().Get() call
+				reflectTag := reflect.StructTag(val[1 : len(val)-1])
+				currentTagValue := reflectTag.Get(flags.Tag)
+				if currentTagValue != "" {
+					sterrors.Printf("Existing tag found: TagName: %s, TagValue: %s - Skipping Tag\n", flags.Tag, currentTagValue)
+					continue
+				}
+				srcData = OverwriteStructTag(tag, formattedName, offset, srcData)
+			} else {
+				srcData = AddStructTag(f, formattedName, offset, srcData)
 			}
-			srcData = OverwriteStructTag(tag, formattedName, offset, srcData)
-		} else {
-			srcData = AddStructTag(f, formattedName, offset, srcData)
 		}
 	}
 	return srcData
