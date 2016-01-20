@@ -13,7 +13,8 @@ usage: st [flags] [path ...]
   -a	Sets mode to append mode. The default is to overwrite existing tags.
   -c	Sets the struct tag to camel case
   -s	Sets the struct tag to snake case
-  -t    The struct tag to use when tagging. Example: -t=json (default "json")
+  -t string
+    	The struct tag to use when tagging. Example: -t=json  (default "json")
   -v	Sets mode to verbose.
   -w	Sets mode to write to source file.
 ```
