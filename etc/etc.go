@@ -56,3 +56,8 @@ type TestStructWithTagsCamel struct {
 	MapStringInt    map[string]int    `json:"MapStringInt"`
 	MapIntString    map[int]string    `json:"MapIntString"`
 }
+
+type TestUnexported struct {
+	testUnexportedInt int
+	TestExportedInt   int
+}
