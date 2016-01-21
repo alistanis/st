@@ -9,6 +9,10 @@ Get it:
 ```go get github.com/alistanis/st```
 
 ```
+st -h or st --help
+```
+
+```
 usage: st [flags] [path ...]
   -a	Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.
   -c	Sets the struct tag to camel case.
