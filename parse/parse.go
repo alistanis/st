@@ -1,3 +1,5 @@
+// Most functions in package parse are exported on the off change that someone would like to use them as library functions
+// in their own project
 package parse
 
 import (
@@ -15,10 +17,13 @@ import (
 
 	"flag"
 
+	"go/format"
+
 	"github.com/alistanis/st/flags"
 	"github.com/alistanis/st/sterrors"
 )
 
+// Takes all provided arguments, iterates over them, stats them, and then inspects source files
 func ParseAndProcess() error {
 	for _, p := range flag.Args() {
 		fi, err := os.Stat(p)
@@ -32,7 +37,10 @@ func ParseAndProcess() error {
 		if err != nil {
 			return err
 		}
-		data = Inspect(f, data)
+		data, err = Inspect(f, data)
+		if err != nil {
+			return err
+		}
 		if flags.Write {
 			ioutil.WriteFile(p, data, 0664)
 		} else {
@@ -42,6 +50,7 @@ func ParseAndProcess() error {
 	return nil
 }
 
+// Reads all file information into a buffer, then creates a token set and parses the file, returning a *ast.File
 func ParseFile(path string) (*ast.File, []byte, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -52,7 +61,8 @@ func ParseFile(path string) (*ast.File, []byte, error) {
 	return f, data, err
 }
 
-func Inspect(f *ast.File, srcFileData []byte) []byte {
+// Visits all nodes in the *ast.File (recursively), performing mutations on the buffer when the type found is an *ast.StructType
+func Inspect(f *ast.File, srcFileData []byte) ([]byte, error) {
 	data := srcFileData
 	var offset *int
 	offsetVal := 0
@@ -61,13 +71,13 @@ func Inspect(f *ast.File, srcFileData []byte) []byte {
 		switch t := n.(type) {
 		case *ast.StructType:
 			data = TagStruct(data, t, offset)
-		default:
 		}
 		return true
 	})
-	return data
+	return format.Source(data)
 }
 
+// Tags a struct based on whether or not it is exported, is ignored, and what flags are provided at runtime
 func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 	for _, f := range s.Fields.List {
 		if len(f.Names) == 0 {
@@ -76,7 +86,12 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 		}
 		if f.Names[0].IsExported() {
 			name := f.Names[0].Name
-			formattedName := FormatFieldName(name)
+			var formattedName string
+			if IsIgnoredField(name) {
+				formattedName = "-"
+			} else {
+				formattedName = FormatFieldName(name)
+			}
 			tag := f.Tag
 			if tag != nil {
 				val := tag.Value
@@ -84,7 +99,7 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 				reflectTag := reflect.StructTag(val[1 : len(val)-1])
 				currentTagValue := reflectTag.Get(flags.Tag)
 				if currentTagValue != "" {
-					sterrors.Printf("Existing tag found: TagName: %s, TagValue: %s - Skipping Tag\n", flags.Tag, currentTagValue)
+					sterrors.Printf("Existing tag found: TagName: %s, TagValue: %s, StartIndex: %d, EndIndex: %d - Skipping Tag\n", flags.Tag, currentTagValue, tag.Pos(), tag.End())
 					continue
 				}
 				srcData = OverwriteStructTag(tag, formattedName, offset, srcData)
@@ -92,10 +107,12 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 				srcData = AddStructTag(f, formattedName, offset, srcData)
 			}
 		}
+
 	}
 	return srcData
 }
 
+// Adds an additional tag to a struct tag
 func AddStructTag(field *ast.Field, tagName string, offset *int, data []byte) []byte {
 	start := int(field.End()) + *offset - 1
 	tag := fmt.Sprintf(" `%s:\"%s\"`", flags.Tag, tagName)
@@ -103,6 +120,7 @@ func AddStructTag(field *ast.Field, tagName string, offset *int, data []byte) []
 	return Insert(data, []byte(tag), start)
 }
 
+// Overwrites the struct tag completely
 func OverwriteStructTag(tag *ast.BasicLit, tagName string, offset *int, data []byte) []byte {
 	val := tag.Value
 	start := int(tag.Pos()) + *offset - 1
@@ -138,18 +156,32 @@ func OverwriteStructTag(tag *ast.BasicLit, tagName string, offset *int, data []b
 	return data
 }
 
+// Checks if a fiels is an explicitly ignored field
+func IsIgnoredField(s string) bool {
+	for _, f := range flags.IgnoredFields {
+		if s == f {
+			return true
+		}
+	}
+	return false
+}
+
+// Deletes a range from a slice, returning the new slice
 func DeleteRange(data []byte, start, end int) []byte {
 	return append(data[:start], data[end:]...)
 }
 
+// Inserts []byte at the given start index
 func Insert(data, insertData []byte, start int) []byte {
 	return append(data[:start], append(insertData, data[start:]...)...)
 }
 
+// Removes a single index from a string
 func removeIndex(input string, index int) string {
 	return input[:index] + input[index+1:]
 }
 
+// Formats the field name as either CamelCase or snake_case
 func FormatFieldName(n string) string {
 	switch flags.Case {
 	case flags.Camel:
@@ -188,6 +220,7 @@ func Underscore(str string) string {
 
 var camelingRegex = regexp.MustCompile("[0-9A-Za-z]+")
 
+// Converts a string to the CamelCase version of it
 func CamelCase(src string) string {
 	byteSrc := []byte(src)
 	chunks := camelingRegex.FindAll(byteSrc, -1)
