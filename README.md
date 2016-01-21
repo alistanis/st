@@ -166,6 +166,8 @@ type TestUnexportedField struct {
 }
 ```
 
+- Ignore a specific field (-i) and ignore a specific struct (-is)
+
 ```
 st -s -a -v -i=ExportedField -is=TestStructWithTagsCamel -t=msgpack $GOPATH/src/github.com/alistanis/st/etc/etc.go
 ```
