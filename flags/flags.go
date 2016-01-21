@@ -3,6 +3,7 @@ package flags
 import (
 	"errors"
 	"flag"
+	"strings"
 
 	"github.com/alistanis/st/sterrors"
 )
@@ -11,11 +12,13 @@ var (
 	Case string
 	Tag  string
 
-	Append  bool
-	c       bool
-	s       bool
-	Verbose bool
-	Write   bool
+	Append              bool
+	c                   bool
+	s                   bool
+	Verbose             bool
+	Write               bool
+	IgnoredFields       []string
+	IgnoredFieldsString string
 )
 
 const (
@@ -25,6 +28,7 @@ const (
 
 func StringVars() {
 	flag.StringVar(&Tag, "t", "json", "The struct tag to use when tagging. Example: -t=json ")
+	flag.StringVar(&IgnoredFieldsString, "i", "", "A comma separated list of strings to ignore")
 }
 
 func BoolVars() {
@@ -63,5 +67,9 @@ func verify() error {
 		Case = Snake
 	}
 	sterrors.Verbose = Verbose
+
+	if IgnoredFieldsString != "" {
+		IgnoredFields = strings.Split(IgnoredFieldsString, ",")
+	}
 	return nil
 }
