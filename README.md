@@ -95,7 +95,10 @@ type TestUnexportedField struct {
 ```
 
 - Append to existing tags with the tag msgpack (use -w flag to write to original source file)
-```st -s -a -v -t=msgpack $GOPATH/src/github.com/alistanis/st/etc/etc.go```
+
+```
+st -s -a -v -t=msgpack $GOPATH/src/github.com/alistanis/st/etc/etc.go
+```
 
 ```go
 package etc
@@ -163,7 +166,10 @@ type TestUnexportedField struct {
 }
 ```
 
-```st -s -a -v -i=ExportedField -is=TestStructWithTagsCamel -t=msgpack $GOPATH/src/github.com/alistanis/st/etc/etc.go```
+```
+st -s -a -v -i=ExportedField -is=TestStructWithTagsCamel -t=msgpack $GOPATH/src/github.com/alistanis/st/etc/etc.go
+```
+
 ```go
 package etc
 
