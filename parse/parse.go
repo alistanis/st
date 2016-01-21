@@ -1,4 +1,4 @@
-// Most functions in package parse are exported on the off change that someone would like to use them as library functions
+// Most functions in package parse are exported on the off chance that someone would like to use them as library functions
 // in their own project
 package parse
 
