@@ -11,11 +11,13 @@ Get it:
 ```
 usage: st [flags] [path ...]
   -a	Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.
-  -c	Sets the struct tag to camel case
+  -c	Sets the struct tag to camel case.
   -i string
-    	A comma separated list of strings to ignore
+    	A comma separated list of fields to ignore. Will use the format json:"-".
+  -is string
+    	A comma separated list of structs to ignore. Will not tag any fields in the struct.
   -o	Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.
-  -s	Sets the struct tag to snake case
+  -s	Sets the struct tag to snake case.
   -t string
     	The struct tag to use when tagging. Example: -t=json  (default "json")
   -v	Sets mode to verbose.
