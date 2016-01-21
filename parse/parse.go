@@ -23,6 +23,10 @@ import (
 	"github.com/alistanis/st/sterrors"
 )
 
+var (
+	lastTypeName string
+)
+
 // Takes all provided arguments, iterates over them, stats them, and then inspects source files
 func ParseAndProcess() error {
 	for _, p := range flag.Args() {
@@ -69,6 +73,12 @@ func Inspect(f *ast.File, srcFileData []byte) ([]byte, error) {
 	offset = &offsetVal
 	ast.Inspect(f, func(n ast.Node) bool {
 		switch t := n.(type) {
+		case *ast.Ident:
+			if t.Obj != nil {
+				if t.Obj.Kind == ast.Typ {
+					lastTypeName = t.Obj.Name
+				}
+			}
 		case *ast.StructType:
 			data = TagStruct(data, t, offset)
 		}
@@ -79,6 +89,10 @@ func Inspect(f *ast.File, srcFileData []byte) ([]byte, error) {
 
 // Tags a struct based on whether or not it is exported, is ignored, and what flags are provided at runtime
 func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
+	// If the last type name is one of our ignored structs, return immediately
+	if IsIgnoredTypeName(lastTypeName) {
+		return srcData
+	}
 	for _, f := range s.Fields.List {
 		if len(f.Names) == 0 {
 			fmt.Printf("Could not find name for field: %+v\n", f)
@@ -97,10 +111,12 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 				val := tag.Value
 				// remove `'s from string and convert to a reflect.StructTag so we can use reflect.StructTag().Get() call
 				reflectTag := reflect.StructTag(val[1 : len(val)-1])
-				currentTagValue := reflectTag.Get(flags.Tag)
-				if currentTagValue != "" {
-					sterrors.Printf("Existing tag found: TagName: %s, TagValue: %s, StartIndex: %d, EndIndex: %d - Skipping Tag\n", flags.Tag, currentTagValue, tag.Pos(), tag.End())
-					continue
+				if !flags.Overwrite {
+					currentTagValue := reflectTag.Get(flags.Tag)
+					if currentTagValue != "" {
+						sterrors.Printf("Existing tag found: TagName: %s, TagValue: %s, StartIndex: %d, EndIndex: %d - Skipping Tag\n", flags.Tag, currentTagValue, tag.Pos(), tag.End())
+						continue
+					}
 				}
 				srcData = OverwriteStructTag(tag, formattedName, offset, srcData)
 			} else {
@@ -160,6 +176,15 @@ func OverwriteStructTag(tag *ast.BasicLit, tagName string, offset *int, data []b
 func IsIgnoredField(s string) bool {
 	for _, f := range flags.IgnoredFields {
 		if s == f {
+			return true
+		}
+	}
+	return false
+}
+
+func IsIgnoredTypeName(s string) bool {
+	for _, n := range flags.IgnoredStructs {
+		if n == s {
 			return true
 		}
 	}
