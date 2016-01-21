@@ -172,7 +172,7 @@ func OverwriteStructTag(tag *ast.BasicLit, tagName string, offset *int, data []b
 	return data
 }
 
-// Checks if a fiels is an explicitly ignored field
+// Checks if a field is an explicitly ignored field
 func IsIgnoredField(s string) bool {
 	for _, f := range flags.IgnoredFields {
 		if s == f {
