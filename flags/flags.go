@@ -58,7 +58,7 @@ func ParseFlags() error {
 
 func verify() error {
 	if flag.NArg() < 1 {
-		return errors.New("No path was provided. The -path parameter is required.")
+		return errors.New("No path was provided.")
 	}
 
 	if c && s {
