@@ -16,7 +16,7 @@ func run() int {
 		fmt.Println(err)
 		return -1
 	}
-	
+
 	options := &parse.Options{
 		Tag:        flags.Tag,
 		Case:       flags.Case,
