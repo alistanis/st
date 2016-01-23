@@ -15,11 +15,10 @@ import (
 
 	"reflect"
 
-	"flag"
-
 	"go/format"
 
-	"github.com/alistanis/st/flags"
+	"path/filepath"
+
 	"github.com/alistanis/st/sterrors"
 )
 
@@ -27,9 +26,71 @@ var (
 	lastTypeName string
 )
 
-// Takes all provided arguments, iterates over them, stats them, and then inspects source files
-func ParseAndProcess() error {
-	for _, p := range flag.Args() {
+// Append modes
+const (
+	Append = iota
+	Overwrite
+	SkipExisting
+)
+
+// Major Tag modes
+const (
+	TagAll = iota
+	SkipSpecifiedStructs
+	IncludeSpecifiedStructs
+	SkipStructAndFieldKeypairs
+	IncludeStructAndFieldKeypairs
+)
+
+// Basic supported tags and cases
+const (
+	Json  = "json"
+	Snake = "snake"
+	Camel = "camel"
+)
+
+// Defaults
+var (
+	DefaultAppendMode = SkipExisting
+	DefaultTagMode    = TagAll
+	DefaultTag        = Json
+	DefaultCase       = Snake
+
+	DefaultOptions = &Options{
+		//Tags:       []string{DefaultTag},
+		Tag:        DefaultTag,
+		Case:       DefaultCase,
+		AppendMode: DefaultAppendMode,
+		TagMode:    DefaultTagMode,
+		DryRun:     true,
+		Verbose:    false}
+
+	options = DefaultOptions
+
+	IgnoredFields  = make([]string, 0)
+	IgnoredStructs = make([]string, 0)
+	// TODO - Add more sophisticated exclusion/inclusion after refactor
+
+)
+
+func SetOptions(o *Options) {
+	options = o
+}
+
+// Represents package behavior options - will be expanded to take a list of tags to support go generate
+type Options struct {
+	//Tags       []string
+	Tag        string
+	Case       string
+	AppendMode int
+	TagMode    int
+	DryRun     bool
+	Verbose    bool
+}
+
+// Takes a list of paths, iterates over them, stats them, and then inspects source files
+func ParseAndProcessFiles(paths []string) error {
+	for _, p := range paths {
 		fi, err := os.Stat(p)
 		if err != nil {
 			return err
@@ -37,21 +98,62 @@ func ParseAndProcess() error {
 		if fi.IsDir() {
 			return fmt.Errorf("Cannot use a directory as a path. Path: %s", fi.Name())
 		}
-		f, data, err := ParseFile(p)
-		if err != nil {
-			return err
-		}
-		data, err = Inspect(f, data)
-		if err != nil {
-			return err
-		}
-		if flags.Write {
-			ioutil.WriteFile(p, data, 0664)
-		} else {
+		data, err := ProcessFile(p)
+		if options.DryRun {
 			fmt.Println(string(data))
+		} else {
+			ioutil.WriteFile(p, data, 0664)
 		}
 	}
 	return nil
+}
+
+// Represents a basic file with a FileName(path) and the Data contained within the file
+type File struct {
+	FileName string
+	Data     []byte
+}
+
+// Iterates over a []*File, processes the *Files, and returns the resulting []*File and the last error that occurred, if any
+// This function could potentially consume a lot of memory if an extraordinarily large set was passed to it
+func Process(files []*File) ([]*File, error) {
+	var lastErr error
+	results := make([]*File, 0)
+	for _, f := range files {
+		data, err := ProcessBytes(f.Data, f.FileName)
+		if err != nil {
+			lastErr = err
+			continue
+		}
+		result := &File{FileName: f.FileName, Data: data}
+		results = append(results, result)
+	}
+	return results, lastErr
+}
+
+// Takes a []byte and filename, and inspects the data
+func ProcessBytes(data []byte, filename string) ([]byte, error) {
+	astFile, data, err := Parse(data, filename)
+	if err != nil {
+		return nil, err
+	}
+	return Inspect(astFile, data)
+}
+
+// Returns an *ast.File, the data parsed, and an error
+func Parse(data []byte, filename string) (*ast.File, []byte, error) {
+	fset := token.NewFileSet()
+	f, err := parser.ParseFile(fset, filename, string(data), 0)
+	return f, data, err
+}
+
+// Processes a file
+func ProcessFile(path string) ([]byte, error) {
+	f, data, err := ParseFile(path)
+	if err != nil {
+		return nil, err
+	}
+	return Inspect(f, data)
 }
 
 // Reads all file information into a buffer, then creates a token set and parses the file, returning a *ast.File
@@ -60,9 +162,8 @@ func ParseFile(path string) (*ast.File, []byte, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, "etc.go", string(data), 0)
-	return f, data, err
+	name := filepath.Base(path)
+	return Parse(data, name)
 }
 
 // Visits all nodes in the *ast.File (recursively), performing mutations on the buffer when the type found is an *ast.StructType
@@ -111,10 +212,10 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 				val := tag.Value
 				// remove `'s from string and convert to a reflect.StructTag so we can use reflect.StructTag().Get() call
 				reflectTag := reflect.StructTag(val[1 : len(val)-1])
-				if !flags.Overwrite {
-					currentTagValue := reflectTag.Get(flags.Tag)
+				if options.AppendMode == SkipExisting || options.AppendMode == Append {
+					currentTagValue := reflectTag.Get(options.Tag)
 					if currentTagValue != "" {
-						sterrors.Printf("Existing tag found: TagName: %s, TagValue: %s, StartIndex: %d, EndIndex: %d - Skipping Tag\n", flags.Tag, currentTagValue, tag.Pos(), tag.End())
+						sterrors.Printf("Existing tag found: TagName: %s, TagValue: %s, StartIndex: %d, EndIndex: %d - Skipping Tag\n", options.Tag, currentTagValue, tag.Pos(), tag.End())
 						continue
 					}
 				}
@@ -131,7 +232,7 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 // Adds an additional tag to a struct tag
 func AddStructTag(field *ast.Field, tagName string, offset *int, data []byte) []byte {
 	start := int(field.End()) + *offset - 1
-	tag := fmt.Sprintf(" `%s:\"%s\"`", flags.Tag, tagName)
+	tag := fmt.Sprintf(" `%s:\"%s\"`", options.Tag, tagName)
 	*offset += len(tag)
 	return Insert(data, []byte(tag), start)
 }
@@ -147,11 +248,11 @@ func OverwriteStructTag(tag *ast.BasicLit, tagName string, offset *int, data []b
 	// Delete the original tag
 	data = DeleteRange(data, start, end)
 	var newTag string
-	if flags.Append {
+	if options.AppendMode == Append {
 		oldTag := removeIndex(removeIndex(val, 0), len(val)-2)
-		newTag = fmt.Sprintf("`%s:\"%s\" %s`", flags.Tag, tagName, oldTag)
+		newTag = fmt.Sprintf("`%s:\"%s\" %s`", options.Tag, tagName, oldTag)
 	} else {
-		newTag = fmt.Sprintf("`%s:\"%s\"`", flags.Tag, tagName)
+		newTag = fmt.Sprintf("`%s:\"%s\"`", options.Tag, tagName)
 	}
 
 	numSpaces := len(newTag) - oldLength - 1
@@ -174,7 +275,7 @@ func OverwriteStructTag(tag *ast.BasicLit, tagName string, offset *int, data []b
 
 // Checks if a field is an explicitly ignored field
 func IsIgnoredField(s string) bool {
-	for _, f := range flags.IgnoredFields {
+	for _, f := range IgnoredFields {
 		if s == f {
 			return true
 		}
@@ -183,7 +284,7 @@ func IsIgnoredField(s string) bool {
 }
 
 func IsIgnoredTypeName(s string) bool {
-	for _, n := range flags.IgnoredStructs {
+	for _, n := range IgnoredStructs {
 		if n == s {
 			return true
 		}
@@ -208,10 +309,10 @@ func removeIndex(input string, index int) string {
 
 // Formats the field name as either CamelCase or snake_case
 func FormatFieldName(n string) string {
-	switch flags.Case {
-	case flags.Camel:
+	switch options.Case {
+	case Camel:
 		return CamelCase(n)
-	case flags.Snake:
+	case Snake:
 		return Underscore(n)
 	}
 	sterrors.Printf("Could not format string, Case is not set.\n")
