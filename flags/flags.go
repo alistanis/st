@@ -5,23 +5,26 @@ import (
 	"flag"
 	"strings"
 
+	"github.com/alistanis/st/parse"
 	"github.com/alistanis/st/sterrors"
 )
 
 var (
-	Case string
-	Tag  string
+	Case = parse.DefaultCase
+	Tag  = parse.DefaultTag
 
-	Append               bool
-	Overwrite            bool
-	c                    bool
-	s                    bool
-	Verbose              bool
-	Write                bool
-	IgnoredFields        []string
+	Append    bool
+	Overwrite bool
+	c         bool
+	s         bool
+	Verbose   bool
+	Write     bool
+
 	IgnoredFieldsString  string
-	IgnoredStructs       []string
 	IgnoredStructsString string
+
+	AppendMode = parse.SkipExisting
+	TagMode    = parse.TagAll
 )
 
 const (
@@ -76,14 +79,23 @@ func verify() error {
 	if s {
 		Case = Snake
 	}
+
+	if Overwrite {
+		AppendMode = parse.Overwrite
+	}
+
+	if Append {
+		AppendMode = parse.Append
+	}
+
 	sterrors.Verbose = Verbose
 
 	if IgnoredFieldsString != "" {
-		IgnoredFields = strings.Split(IgnoredFieldsString, ",")
+		parse.IgnoredFields = strings.Split(IgnoredFieldsString, ",")
 	}
 
 	if IgnoredStructsString != "" {
-		IgnoredStructs = strings.Split(IgnoredStructsString, ",")
+		parse.IgnoredStructs = strings.Split(IgnoredStructsString, ",")
 	}
 	return nil
 }
