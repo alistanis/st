@@ -16,15 +16,7 @@ func run() int {
 		fmt.Println(err)
 		return -1
 	}
-	type Options struct {
-		//Tags       []string
-		Tag        string
-		Case       string
-		AppendMode int
-		TagMode    int
-		DryRun     bool
-		Verbose    bool
-	}
+	
 	options := &parse.Options{
 		Tag:        flags.Tag,
 		Case:       flags.Case,
