@@ -16,8 +16,25 @@ func run() int {
 		fmt.Println(err)
 		return -1
 	}
-
-	err = parse.ParseAndProcess()
+	type Options struct {
+		//Tags       []string
+		Tag        string
+		Case       string
+		AppendMode int
+		TagMode    int
+		DryRun     bool
+		Verbose    bool
+	}
+	options := &parse.Options{
+		Tag:        flags.Tag,
+		Case:       flags.Case,
+		AppendMode: flags.AppendMode,
+		TagMode:    flags.TagMode,
+		// this is confusing, I'll fix it later when changing documentation/flags behavior
+		DryRun:  !flags.Write,
+		Verbose: flags.Verbose}
+	parse.SetOptions(options)
+	err = parse.ParseAndProcessFiles(flag.Args())
 	if err != nil {
 		fmt.Println(err)
 		return -1
