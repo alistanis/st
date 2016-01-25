@@ -56,7 +56,16 @@ var (
 	DefaultTag        = Json
 	DefaultCase       = Snake
 
-	DefaultOptions = &Options{
+	options = DefaultOptions()
+
+	IgnoredFields  = make([]string, 0)
+	IgnoredStructs = make([]string, 0)
+	// TODO - Add more sophisticated exclusion/inclusion after refactor
+
+)
+
+func DefaultOptions() *Options {
+	return &Options{
 		//Tags:       []string{DefaultTag},
 		Tag:        DefaultTag,
 		Case:       DefaultCase,
@@ -64,14 +73,7 @@ var (
 		TagMode:    DefaultTagMode,
 		DryRun:     true,
 		Verbose:    false}
-
-	options = DefaultOptions
-
-	IgnoredFields  = make([]string, 0)
-	IgnoredStructs = make([]string, 0)
-	// TODO - Add more sophisticated exclusion/inclusion after refactor
-
-)
+}
 
 func SetOptions(o *Options) {
 	options = o
@@ -196,7 +198,7 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 	}
 	for _, f := range s.Fields.List {
 		if len(f.Names) == 0 {
-			fmt.Printf("Could not find name for field: %+v\n", f)
+			sterrors.Printf("Could not find name for field: %+v\n", f)
 			continue
 		}
 		if f.Names[0].IsExported() {
@@ -344,6 +346,8 @@ func Underscore(str string) string {
 	return output
 }
 
+
+// Taken from https://github.com/etgryphon/stringUp/blob/master/stringUp.go
 var camelingRegex = regexp.MustCompile("[0-9A-Za-z]+")
 
 // Converts a string to the CamelCase version of it
