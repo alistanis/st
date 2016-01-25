@@ -1,6 +1,11 @@
 package parse
 
-import "strings"
+import (
+	"strings"
+	"testing"
+
+	. "github.com/smartystreets/goconvey/convey"
+)
 
 var (
 	testDataNoExistingTags = `type TestStruct struct {
@@ -58,3 +63,15 @@ var (
 	MapIntString    map[int]string    %sjson:"MapIntString"%s
 }`, "%s", "`", -1)
 )
+
+func TestSnakeCase(t *testing.T) {
+	Convey("Given a sample piece of code defining a struct with no struct tags and the correct options", t, func() {
+		opts := DefaultOptions
+		SetOptions(opts)
+		Convey("We can add the appropriate struct tags to it", func() {
+			data, err := ProcessBytes([]byte(testDataNoExistingTags), "test.go")
+			So(err, ShouldBeNil)
+			So(data, ShouldEqual, []byte(snakeTestDataExistingTags))
+		})
+	})
+}
