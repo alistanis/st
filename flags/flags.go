@@ -55,7 +55,6 @@ func SetVars() {
 
 func ParseFlags() error {
 	SetVars()
-	flag.Parse()
 	return verify()
 }
 
