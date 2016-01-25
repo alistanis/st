@@ -8,6 +8,9 @@ st is a command line utility for tagging structs in your Go code.
 Get it: 
 ```go get github.com/alistanis/st```
 
+If you want to run the tests, you'll need the goconvey package:
+```go get github.com/smartystreets/goconvey```
+
 ```
 st -h or st --help
 ```
