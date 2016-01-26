@@ -108,8 +108,8 @@ type Options struct {
 	Verbose    bool
 }
 
-// ParseAndProcessFiles takes a list of paths, iterates over them, stats them, and then inspects source files
-func ParseAndProcessFiles(paths []string) error {
+// AndProcessFiles takes a list of paths, iterates over them, stats them, and then inspects source files
+func AndProcessFiles(paths []string) error {
 	for _, p := range paths {
 		fi, err := os.Stat(p)
 		if err != nil {
@@ -138,7 +138,7 @@ type File struct {
 // This function could potentially consume a lot of memory if an extraordinarily large set was passed to it
 func Process(files []*File) ([]*File, error) {
 	var lastErr error
-	results := make([]*File, 0)
+	var results []*File
 	for _, f := range files {
 		data, err := ProcessBytes(f.Data, f.FileName)
 		if err != nil {
@@ -169,15 +169,15 @@ func Parse(data []byte, filename string) (*ast.File, []byte, error) {
 
 // ProcessFile processes a file, returning the processed []byte
 func ProcessFile(path string) ([]byte, error) {
-	f, data, err := ParseFile(path)
+	f, data, err := parseFile(path)
 	if err != nil {
 		return nil, err
 	}
 	return Inspect(f, data)
 }
 
-// ParseFile reads all file information into a buffer, then creates a token set and parses the file, returning a *ast.File
-func ParseFile(path string) (*ast.File, []byte, error) {
+// parseFile reads all file information into a buffer, then creates a token set and parses the file, returning a *ast.File
+func parseFile(path string) (*ast.File, []byte, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, nil, err

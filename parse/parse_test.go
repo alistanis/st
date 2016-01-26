@@ -274,7 +274,7 @@ func TestFiles(t *testing.T) {
 
 			os.Stdout = temp
 
-			err = ParseAndProcessFiles(files)
+			err = AndProcessFiles(files)
 			So(err, ShouldBeNil)
 
 			err = temp.Close()
@@ -311,7 +311,7 @@ func TestFiles(t *testing.T) {
 			opts := DefaultOptions()
 			opts.DryRun = false
 			SetOptions(opts)
-			err = ParseAndProcessFiles([]string{f.Name()})
+			err = AndProcessFiles([]string{f.Name()})
 			So(err, ShouldBeNil)
 			data, err := ioutil.ReadFile(f.Name())
 			So(err, ShouldBeNil)
@@ -348,12 +348,12 @@ asofinqowkernoaskn{{}}'`
 
 	Convey("Given bad files and directories", t, func() {
 		Convey("Empty string in a path of files returns an error", func() {
-			err := ParseAndProcessFiles([]string{""})
+			err := AndProcessFiles([]string{""})
 			So(err, ShouldNotBeNil)
 		})
 
 		Convey("Passing a directory returns an error", func() {
-			err := ParseAndProcessFiles([]string{tempDir})
+			err := AndProcessFiles([]string{tempDir})
 			So(err, ShouldNotBeNil)
 			So(err.Error(), ShouldContainSubstring, fmt.Sprintf("Cannot use a directory as a path."))
 		})

@@ -43,7 +43,7 @@ func run() int {
 		DryRun:  !flags.Write,
 		Verbose: flags.Verbose}
 	parse.SetOptions(options)
-	err = parse.ParseAndProcessFiles(flag.Args())
+	err = parse.AndProcessFiles(flag.Args())
 	if err != nil {
 		fmt.Println(err)
 		return -1
