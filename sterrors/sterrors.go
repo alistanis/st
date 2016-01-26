@@ -1,9 +1,13 @@
 package sterrors
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
-	Verbose = false
+	Verbose      = false
+	NoPathsGiven = errors.New("No paths to any .go files were provided.")
 )
 
 func MutuallyExclusiveParameters(p, p2 string) error {

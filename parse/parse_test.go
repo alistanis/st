@@ -268,7 +268,7 @@ func TestFiles(t *testing.T) {
 
 			files := []string{f1.Name(), f2.Name()}
 			stdout := os.Stdout
-			fname := filepath.Join(os.TempDir(), "stdout")
+			fname := filepath.Join(tempDir, "stdout")
 			temp, err := os.Create(fname)
 			So(err, ShouldBeNil)
 
@@ -278,6 +278,7 @@ func TestFiles(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			err = temp.Close()
+			So(err, ShouldBeNil)
 
 			output, err := ioutil.ReadFile(fname)
 			So(err, ShouldBeNil)
@@ -382,7 +383,6 @@ type TestStruct struct {
 		So(err.Error(), ShouldContainSubstring, "bad_2")
 	})
 }
-
 
 // Below taken from https://github.com/etgryphon/stringUp/blob/master/stringUp_test.go
 func TestCamelCased(t *testing.T) {
