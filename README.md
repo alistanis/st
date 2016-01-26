@@ -63,15 +63,14 @@ it will append to the existing tag with the msgpack key/value.
 
 
 #Overwrite Examples: 
-```
+```go
 st --overwrite --tag-name=msgpack $GOFILE
-
 type Test struct { F field `json:"f"`}
     becomes
 type Test struct { F field `msgpack:"f"`}
 ```
 
-```
+```go
 st --overwrite --tag-name=json --case=camel $GOFILE
 type Test struct { F field `json:"f"`}
     becomes
@@ -79,14 +78,14 @@ type Test struct { F field `json:"F"`}
 ```
 
 #Append Examples:
-```
+```go
 st --append --case=camel --tag-name=json $GOFILE
 type Test struct { F field `json:"f"`}
     becomes (the tag is left alone because it is already there)
 type Test struct { F field `json:"f"`}
 ```
 
-```
+```go
 st --append --tag-name=msgpack $GOFILE
 type Test struct { F field `json:"f"`}
     becomes
@@ -97,6 +96,7 @@ type Test struct { F field `msgpack:"f" json:"f"`}
 Further examples
 
 Contents of etc.go before running
+
 ```go
 package etc
 
