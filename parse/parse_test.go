@@ -297,7 +297,7 @@ func TestFiles(t *testing.T) {
 		})
 
 		Convey("Given a set of 'files' (as defined in parse.go)", func() {
-			files := []*File{&File{FileName: "test.go", Data: []byte(testDataNoExistingTags)}}
+			files := []*File{{FileName: "test.go", Data: []byte(testDataNoExistingTags)}}
 			results, err := Process(files)
 			So(err, ShouldBeNil)
 			So(string(results[0].Data), ShouldEqual, snakeTestDataExistingTags)
@@ -378,7 +378,7 @@ type TestStruct struct {
 		aposmpomparosmpckmqlkwme`
 		badSrc2 := `package test
 		asdpomqpwoermpoamspdlmdw`
-		files := []*File{&File{FileName: "bad_1", Data: []byte(badSrc1)}, &File{FileName: "bad_2", Data: []byte(badSrc2)}}
+		files := []*File{{FileName: "bad_1", Data: []byte(badSrc1)}, {FileName: "bad_2", Data: []byte(badSrc2)}}
 		_, err := Process(files)
 		So(err.Error(), ShouldContainSubstring, "bad_2")
 	})

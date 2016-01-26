@@ -346,7 +346,6 @@ func Underscore(str string) string {
 	return output
 }
 
-
 // Taken from https://github.com/etgryphon/stringUp/blob/master/stringUp.go
 var camelingRegex = regexp.MustCompile("[0-9A-Za-z]+")
 
