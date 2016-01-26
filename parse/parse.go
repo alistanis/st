@@ -1,5 +1,5 @@
-// Most functions in package parse are exported on the off chance that someone would like to use them as library functions
-// in their own project
+// Package parse provides functions for parsing and tagging golang structs. It achieves this by creating an ast and
+// visiting all of its nodes.
 package parse
 
 import (
@@ -28,42 +28,59 @@ var (
 
 // Append modes
 const (
+	// Append will append to tags rather than overwriting them altogether
 	Append = iota
+	// Overwrite will overwrite tags completely
 	Overwrite
+	// SkipExisting skips existing tags whether or not they match tag or case
 	SkipExisting
 )
 
 // Major Tag modes
 const (
+	// TagAll will tag all structs/fields (unless they are excluded in the IngoreStructs/IgnoreFields slices)
 	TagAll = iota
+	// SkipSpecifiedStructs (currently unimplemented)
 	SkipSpecifiedStructs
+	// IncludeSpecifiedStructs (currently unimplemented)
 	IncludeSpecifiedStructs
+	// SkipStructAndFieldKeypairs (currently unimplemented)
 	SkipStructAndFieldKeypairs
+	// IncludeStructAndFieldKeypairs (currently unimplemented)
 	IncludeStructAndFieldKeypairs
 )
 
 // Basic supported tags and cases
 const (
-	Json  = "json"
+	// JSON represents the json tag
+	JSON = "json"
+	// Snake represents snake case
 	Snake = "snake"
+	// Camel represents camel case
 	Camel = "camel"
 )
 
 // Defaults
 var (
+	// DefaultAppendMode is SkipExisting - will skip existing tags entirely
 	DefaultAppendMode = SkipExisting
-	DefaultTagMode    = TagAll
-	DefaultTag        = Json
-	DefaultCase       = Snake
+	// DefaultTagMode is TagAll - will tag all structs/fields unless they are already tagged or in the excluded slices
+	DefaultTagMode = TagAll
+	// DefaultTag is JSON
+	DefaultTag = JSON
+	// DefaultCase is Snake case. (common in http, sql, etc)
+	DefaultCase = Snake
 
 	options = DefaultOptions()
-
-	IgnoredFields  = make([]string, 0)
+	// IgnoredFields contains strings for fields that are not to be tagged
+	IgnoredFields = make([]string, 0)
+	// IgnoredStructs contains strings for structs that are not to be tagged
 	IgnoredStructs = make([]string, 0)
 	// TODO - Add more sophisticated exclusion/inclusion after refactor
 
 )
 
+// DefaultOptions returns a new *Options with all default values initialized
 func DefaultOptions() *Options {
 	return &Options{
 		//Tags:       []string{DefaultTag},
@@ -75,11 +92,12 @@ func DefaultOptions() *Options {
 		Verbose:    false}
 }
 
+// SetOptions sets the current options to the options provided. (This is not thread safe if called from a goroutine)
 func SetOptions(o *Options) {
 	options = o
 }
 
-// Represents package behavior options - will be expanded to take a list of tags to support go generate
+// Options represents package behavior options - will be expanded to take a list of tags to support go generate
 type Options struct {
 	//Tags       []string
 	Tag        string
@@ -90,7 +108,7 @@ type Options struct {
 	Verbose    bool
 }
 
-// Takes a list of paths, iterates over them, stats them, and then inspects source files
+// ParseAndProcessFiles takes a list of paths, iterates over them, stats them, and then inspects source files
 func ParseAndProcessFiles(paths []string) error {
 	for _, p := range paths {
 		fi, err := os.Stat(p)
@@ -110,13 +128,13 @@ func ParseAndProcessFiles(paths []string) error {
 	return nil
 }
 
-// Represents a basic file with a FileName(path) and the Data contained within the file
+// File represents a basic file with a FileName(path) and the Data contained within the file
 type File struct {
 	FileName string
 	Data     []byte
 }
 
-// Iterates over a []*File, processes the *Files, and returns the resulting []*File and the last error that occurred, if any
+// Process iterates over a []*File, processes the *Files, and returns the resulting []*File and the last error that occurred, if any
 // This function could potentially consume a lot of memory if an extraordinarily large set was passed to it
 func Process(files []*File) ([]*File, error) {
 	var lastErr error
@@ -133,7 +151,7 @@ func Process(files []*File) ([]*File, error) {
 	return results, lastErr
 }
 
-// Takes a []byte and filename, and inspects the data
+// ProcessBytes takes a []byte and filename, and inspects the data, returning that data in another []byte
 func ProcessBytes(data []byte, filename string) ([]byte, error) {
 	astFile, data, err := Parse(data, filename)
 	if err != nil {
@@ -142,14 +160,14 @@ func ProcessBytes(data []byte, filename string) ([]byte, error) {
 	return Inspect(astFile, data)
 }
 
-// Returns an *ast.File, the data parsed, and an error
+// Parse returns an *ast.File, the data parsed, and an error
 func Parse(data []byte, filename string) (*ast.File, []byte, error) {
 	fset := token.NewFileSet()
 	f, err := parser.ParseFile(fset, filename, string(data), 0)
 	return f, data, err
 }
 
-// Processes a file
+// ProcessFile processes a file, returning the processed []byte
 func ProcessFile(path string) ([]byte, error) {
 	f, data, err := ParseFile(path)
 	if err != nil {
@@ -158,7 +176,7 @@ func ProcessFile(path string) ([]byte, error) {
 	return Inspect(f, data)
 }
 
-// Reads all file information into a buffer, then creates a token set and parses the file, returning a *ast.File
+// ParseFile reads all file information into a buffer, then creates a token set and parses the file, returning a *ast.File
 func ParseFile(path string) (*ast.File, []byte, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -168,7 +186,7 @@ func ParseFile(path string) (*ast.File, []byte, error) {
 	return Parse(data, name)
 }
 
-// Visits all nodes in the *ast.File (recursively), performing mutations on the buffer when the type found is an *ast.StructType
+// Inspect visits all nodes in the *ast.File (recursively), performing mutations on the buffer when the type found is an *ast.StructType
 func Inspect(f *ast.File, srcFileData []byte) ([]byte, error) {
 	data := srcFileData
 	var offset *int
@@ -190,7 +208,7 @@ func Inspect(f *ast.File, srcFileData []byte) ([]byte, error) {
 	return format.Source(data)
 }
 
-// Tags a struct based on whether or not it is exported, is ignored, and what flags are provided at runtime
+// TagStruct tags a struct based on whether or not it is exported, is ignored, and what flags are provided at runtime
 func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 	// If the last type name is one of our ignored structs, return immediately
 	if IsIgnoredTypeName(lastTypeName) {
@@ -223,7 +241,7 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 				}
 				srcData = OverwriteStructTag(tag, formattedName, offset, srcData)
 			} else {
-				srcData = AddStructTag(f, formattedName, offset, srcData)
+				srcData = AppendStructTag(f, formattedName, offset, srcData)
 			}
 		}
 
@@ -231,15 +249,15 @@ func TagStruct(srcData []byte, s *ast.StructType, offset *int) []byte {
 	return srcData
 }
 
-// Adds an additional tag to a struct tag
-func AddStructTag(field *ast.Field, tagName string, offset *int, data []byte) []byte {
+// AppendStructTag adds an additional tag to a struct tag
+func AppendStructTag(field *ast.Field, tagName string, offset *int, data []byte) []byte {
 	start := int(field.End()) + *offset - 1
 	tag := fmt.Sprintf(" `%s:\"%s\"`", options.Tag, tagName)
 	*offset += len(tag)
 	return Insert(data, []byte(tag), start)
 }
 
-// Overwrites the struct tag completely
+// OverwriteStructTag overwrites the struct tag completely
 func OverwriteStructTag(tag *ast.BasicLit, tagName string, offset *int, data []byte) []byte {
 	val := tag.Value
 	start := int(tag.Pos()) + *offset - 1
@@ -275,7 +293,7 @@ func OverwriteStructTag(tag *ast.BasicLit, tagName string, offset *int, data []b
 	return data
 }
 
-// Checks if a field is an explicitly ignored field
+// IsIgnoredField checks if a field is an explicitly ignored field
 func IsIgnoredField(s string) bool {
 	for _, f := range IgnoredFields {
 		if s == f {
@@ -285,6 +303,7 @@ func IsIgnoredField(s string) bool {
 	return false
 }
 
+// IsIgnoredTypeName checks if the name provided is an ignored struct
 func IsIgnoredTypeName(s string) bool {
 	for _, n := range IgnoredStructs {
 		if n == s {
@@ -294,22 +313,22 @@ func IsIgnoredTypeName(s string) bool {
 	return false
 }
 
-// Deletes a range from a slice, returning the new slice
+// DeleteRange deletes a range from a []byte, returning the new slice
 func DeleteRange(data []byte, start, end int) []byte {
 	return append(data[:start], data[end:]...)
 }
 
-// Inserts []byte at the given start index
+// Insert inserts insertData into data at the given start index
 func Insert(data, insertData []byte, start int) []byte {
 	return append(data[:start], append(insertData, data[start:]...)...)
 }
 
-// Removes a single index from a string
+// removeIndex removes a single index from a string
 func removeIndex(input string, index int) string {
 	return input[:index] + input[index+1:]
 }
 
-// Formats the field name as either CamelCase or snake_case
+// FormatFieldName formats the field name as either CamelCase or snake_case
 func FormatFieldName(n string) string {
 	switch options.Case {
 	case Camel:
@@ -328,7 +347,7 @@ var (
 	lowerUpper        = regexp.MustCompile("([a-z])([A-Z0-9])")
 )
 
-// This function will change a string from a camelcased
+// Underscore will change a string from a camelcased
 // form to a string with underscores. Will change "::" to
 // "/" to maintain compatibility with Rails's underscore
 func Underscore(str string) string {
@@ -349,7 +368,7 @@ func Underscore(str string) string {
 // Taken from https://github.com/etgryphon/stringUp/blob/master/stringUp.go
 var camelingRegex = regexp.MustCompile("[0-9A-Za-z]+")
 
-// Converts a string to the CamelCase version of it
+// CamelCase converts a string to the CamelCase version of it
 func CamelCase(src string) string {
 	byteSrc := []byte(src)
 	chunks := camelingRegex.FindAll(byteSrc, -1)

@@ -7,7 +7,8 @@ import (
 
 var (
 	// Verbose determines whether or not Printf will print anything
-	Verbose      = false
+	Verbose = false
+	// ErrNoPathsGiven is returned when no paths to any .go files were provided at the command line
 	ErrNoPathsGiven = errors.New("No paths to any .go files were provided.")
 )
 

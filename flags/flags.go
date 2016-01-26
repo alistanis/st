@@ -35,7 +35,9 @@ var (
 )
 
 const (
+	// Camel is a constant string for 'camel'
 	Camel = "camel"
+	// Snake is a constant string for 'snake'
 	Snake = "snake"
 )
 
