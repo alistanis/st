@@ -15,7 +15,6 @@ func run() int {
 	if err != nil {
 		fmt.Println(err)
 		usage()
-		return -1
 	}
 
 	options := &parse.Options{
