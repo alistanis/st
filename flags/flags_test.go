@@ -1,8 +1,6 @@
 package flags
 
 import (
-	"flag"
-	"os"
 	"reflect"
 	"testing"
 
@@ -13,9 +11,9 @@ import (
 
 func TestFlags(t *testing.T) {
 	Convey("Flag testing", t, func() {
-
+		// We trick the flag parser into thinking there is an additional parameter, when really, there isn't. This allows
+		// us to bypass the check in ParseFlags() for a path, but this will be caught in parse or in main either way
 		Convey("We can set the mode to camel case", func() {
-			ResetFlags()
 			SetArgs([]string{"-c", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
@@ -23,7 +21,6 @@ func TestFlags(t *testing.T) {
 		})
 
 		Convey("We can set the mode to snake case", func() {
-			ResetFlags()
 			SetArgs([]string{"-s", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
@@ -35,7 +32,6 @@ func TestFlags(t *testing.T) {
 		})
 
 		Convey("We can set the append mode to overwrite", func() {
-			ResetFlags()
 			SetArgs([]string{"-o", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
@@ -43,7 +39,6 @@ func TestFlags(t *testing.T) {
 		})
 
 		Convey("We can set append mode to append", func() {
-			ResetFlags()
 			SetArgs([]string{"-a", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
@@ -51,7 +46,6 @@ func TestFlags(t *testing.T) {
 		})
 
 		Convey("We can set ignored fields", func() {
-			ResetFlags()
 			SetArgs([]string{"-i", "ignore,this,field", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
@@ -59,7 +53,6 @@ func TestFlags(t *testing.T) {
 		})
 
 		Convey("We can set ignored structs", func() {
-			ResetFlags()
 			SetArgs([]string{"-is", "ignore,these,structs", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
@@ -73,7 +66,6 @@ func TestFlagErrors(t *testing.T) {
 	Convey("Flag error testing", t, func() {
 
 		Convey("We can return an error when no path is given", func() {
-			ResetFlags()
 			SetArgs([]string{})
 			err := ParseFlags()
 			So(err, ShouldNotBeNil)
@@ -82,7 +74,6 @@ func TestFlagErrors(t *testing.T) {
 
 		Convey("Given a set of mismatched case flags", func() {
 			Convey("A mutually exclusive parameters error is given", func() {
-				ResetFlags()
 				SetArgs([]string{"-c", "-s", ""})
 				err := ParseFlags()
 				So(err, ShouldNotBeNil)
@@ -92,7 +83,6 @@ func TestFlagErrors(t *testing.T) {
 
 		Convey("Given a set of mismatched append mode flags", func() {
 			Convey("A mutually exclusive parameters error is given", func() {
-				ResetFlags()
 				SetArgs([]string{"-a", "-o", ""})
 				err := ParseFlags()
 				So(err, ShouldNotBeNil)
@@ -101,13 +91,4 @@ func TestFlagErrors(t *testing.T) {
 		})
 
 	})
-}
-
-func ResetFlags() {
-	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
-}
-
-func SetArgs(s []string) {
-	os.Args = []string{os.Args[0]}
-	os.Args = append(os.Args, s...)
 }
