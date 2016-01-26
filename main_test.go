@@ -101,7 +101,7 @@ func TestCrashingMain(t *testing.T) {
 		f, err := ioutil.TempFile(tempDir, "")
 		So(err, ShouldBeNil)
 		f.WriteString(testData)
-		args := "-test.run=TestCrashingMain -s" + f.Name()
+		args := "-test.run=TestCrashingMain -s " + f.Name()
 		cmd := exec.Command(os.Args[0], args)
 		cmd.Env = append(os.Environ(), "CRASH=1")
 
