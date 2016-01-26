@@ -12,6 +12,8 @@ Get it:
 If you want to run the tests, you'll need the goconvey package:
 ```go get github.com/smartystreets/goconvey```
 
+
+#Usage
 ```
 st -h or st --help
 ```
@@ -92,8 +94,16 @@ type Test struct { F field `json:"f"`}
 type Test struct { F field `msgpack:"f" json:"f"`}
 ```
 
+#Contributing & Contact
+If you would like to contribute, don't be shy! Fork the project, write tests for any new code and ensure that you don't break existing
+functionality by running the current tests. If you're looking to submit changes upstream, it would be a good idea to
+discuss it with me first. I'm available via [email](ccooper@sessionm.com), through Github, on the
+[Gophers Slack ST Channel](https://blog.gopheracademy.com/gophers-slack-community/), or on [Gitter.im](https://gitter.im/alistanis/st).
 
-Further examples
+If you do submit a pull request, I will review it and I will merge it if it's in line with my vision for the project.
+
+
+#Further examples
 
 Contents of etc.go before running
 
@@ -307,11 +317,3 @@ type TestUnexportedField struct {
 	ExportedField   int `msgpack:"-"`
 }
 ```
-
-#Contributing
-If you would like to contribute, don't be shy! Fork the project, write tests for any new code and ensure that you don't break existing
-functionality by running the current tests. If you're looking to submit changes upstream, it would be a good idea to
-discuss it with me first. I'm available via email (ccooper@sessionm.com), through Github, or on the Gophers slack team under the st channel 
-(https://blog.gopheracademy.com/gophers-slack-community/).
-
-If you do submit a pull request, I will review it and I will merge it if it's in line with my vision for the project.
