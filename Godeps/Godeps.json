@@ -1,0 +1,13 @@
+{
+  "ImportPath": "github.com/alistanis/st",
+  "GoVersion": "go1.5.3",
+  "Packages": [
+    "./..."
+  ],
+  "Deps": [
+    {
+      "ImportPath": "github.com/smartystreets/goconvey",
+      "Rev": "995f5b2e021c69b8b028ba6d0b05c1dd500783db"
+    }
+  ]
+}
