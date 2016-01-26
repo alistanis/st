@@ -34,18 +34,27 @@ const (
 
 func StringVars() {
 	flag.StringVar(&Tag, "t", "json", "The struct tag to use when tagging. Example: -t=json ")
+	flag.StringVar(&Tag, "tag-name", "json", "The struct tag to use when tagging. Example: --tag-name=json ")
 	flag.StringVar(&IgnoredFieldsString, "i", "", "A comma separated list of fields to ignore. Will use the format json:\"-\".")
+	flag.StringVar(&IgnoredFieldsString, "ignored-fields", "", "A comma separated list of fields to ignore. Will use the format json:\"-\".")
 	flag.StringVar(&IgnoredStructsString, "is", "", "A comma separated list of structs to ignore. Will not tag any fields in the struct.")
+	flag.StringVar(&IgnoredStructsString, "ignored-structs", "", "A comma separated list of structs to ignore. Will not tag any fields in the struct.")
 
 }
 
 func BoolVars() {
 	flag.BoolVar(&c, "c", false, "Sets the struct tag to camel case.")
+	flag.BoolVar(&c, "camel", false, "Sets the struct tag to camel case")
 	flag.BoolVar(&s, "s", false, "Sets the struct tag to snake case.")
+	flag.BoolVar(&s, "snake", false, "Sets the struct tag to snake case.")
 	flag.BoolVar(&Append, "a", false, "Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.")
+	flag.BoolVar(&Append, "append", false, "Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.")
 	flag.BoolVar(&Verbose, "v", false, "Sets mode to verbose.")
-	flag.BoolVar(&Write, "w", false, "Sets mode to write to source file.")
+	flag.BoolVar(&Verbose, "verbose", false, "Sets mode to verbose.")
+	flag.BoolVar(&Write, "w", false, "Sets mode to write to source file. The default is a dry run that prints the results to stdout.")
+	flag.BoolVar(&Write, "write", false, "Sets mode to write to source file. The default is a dry run that prints the results to stdout.")
 	flag.BoolVar(&Overwrite, "o", false, "Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.")
+	flag.BoolVar(&Overwrite, "overwrite", false, "Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.")
 }
 
 func SetVars() {
@@ -55,10 +64,12 @@ func SetVars() {
 
 func ParseFlags() error {
 	SetVars()
+	flag.Parse()
 	return verify()
 }
 
 func verify() error {
+
 	if flag.NArg() < 1 {
 		return errors.New("No path was provided.")
 	}
