@@ -1,7 +1,6 @@
 package flags
 
 import (
-	"errors"
 	"flag"
 	"strings"
 
@@ -71,7 +70,7 @@ func ParseFlags() error {
 func verify() error {
 
 	if flag.NArg() < 1 {
-		return errors.New("No path was provided.")
+		return sterrors.NoPathsGiven
 	}
 
 	if c && s {
