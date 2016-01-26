@@ -51,7 +51,6 @@ usage: st [flags] [path ...]
 
 #Notes:
 
-```
 Defaults are set to what I consider to be reasonable. This means that ST won't write to your source file unless you
 provide the -w or --write flags, it will simply print what the result will be to your buffer. The default tag it will use
 if no tag is specified is json, and the default case it uses is snake case. ST, by default, will skip any struct fields
@@ -60,7 +59,7 @@ that already have tags. That behavior can be overridden by using the overwrite m
 Overwrite mode will completely overwrite an existing tag. Append mode is a little trickier. If an existing tag is there for the
 tag that you have specified, let's use json as our example, it will leave that tag alone. If you specify a different tag, like msgpack,
 it will append to the existing tag with the msgpack key/value.
-```
+
 
 #Overwrite Examples: 
 ```
