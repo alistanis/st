@@ -18,20 +18,91 @@ st -h or st --help
 ```
 usage: st [flags] [path ...]
   -a	Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.
+  -append
+    	Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.
   -c	Sets the struct tag to camel case.
+  -camel
+    	Sets the struct tag to camel case
   -i string
     	A comma separated list of fields to ignore. Will use the format json:"-".
+  -ignored-fields string
+    	A comma separated list of fields to ignore. Will use the format json:"-".
+  -ignored-structs string
+    	A comma separated list of structs to ignore. Will not tag any fields in the struct.
   -is string
     	A comma separated list of structs to ignore. Will not tag any fields in the struct.
   -o	Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.
+  -overwrite
+    	Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.
   -s	Sets the struct tag to snake case.
+  -snake
+    	Sets the struct tag to snake case.
   -t string
     	The struct tag to use when tagging. Example: -t=json  (default "json")
+  -tag-name string
+    	The struct tag to use when tagging. Example: --tag-name=json  (default "json")
   -v	Sets mode to verbose.
-  -w	Sets mode to write to source file.
+  -verbose
+    	Sets mode to verbose.
+  -w	Sets mode to write to source file. The default is a dry run that prints the results to stdout.
+  -write
+    	Sets mode to write to source file. The default is a dry run that prints the results to stdout.
 ```
 
-Use it:
+#Notes:
+
+```
+Defaults are set to what I consider to be reasonable. This means that ST won't write to your source file unless you
+provide the -w or --write flags, it will simply print what the result will be to your buffer. The default tag it will use
+if no tag is specified is json, and the default case it uses is snake case. ST, by default, will skip any struct fields
+that already have tags. That behavior can be overridden by using the overwrite mode (-o or --overwrite), or append mode (-a or --append).
+
+Overwrite mode will completely overwrite an existing tag. Append mode is a little trickier. If an existing tag is there for the
+tag that you have specified, let's use json as our example, it will leave that tag alone. If you specify a different tag, like msgpack,
+it will append to the existing tag with the msgpack key/value.
+```
+
+#Overwrite Examples: 
+```
+st --overwrite --tag-name=msgpack $GOFILE
+
+type Test struct { F field `json:"f"`}
+```
+becomes
+```
+type Test struct { F field `msgpack:"f"`}
+```
+
+```
+st --overwrite --tag-name=json --case=camel $GOFILE
+type Test struct { F field `json:"f"`}
+```
+becomes
+```
+type Test struct { F field `json:"F"`}
+```
+
+#Append Examples:
+```
+st --append --case=camel --tag-name=json $GOFILE
+type Test struct { F field `json:"f"`}
+```
+becomes (the tag is left alone because it is already there)
+```
+type Test struct { F field `json:"f"`}
+```
+
+```
+st --append --tag-name=msgpack $GOFILE
+type Test struct { F field `json:"f"`}
+```
+becomes
+```
+type Test struct { F field `msgpack:"f" json:"f"`}
+```
+
+
+Further examples
 
 Contents of etc.go before running
 ```go
@@ -244,3 +315,11 @@ type TestUnexportedField struct {
 	ExportedField   int `msgpack:"-"`
 }
 ```
+
+#Contributing
+If you would like to contribute, fork the project, write tests for any new code and ensure that you don't break existing
+functionality by running the current tests. If you're looking to submit changes upstream, it would be a good idea to
+discuss it with me first. I'm available via email, through Github, or on the Gophers slack team under the st channel 
+(https://blog.gopheracademy.com/gophers-slack-community/).
+
+If you do submit a pull request, I will review it and I will merge it if it's in line with my vision for the project.
