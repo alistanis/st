@@ -308,9 +308,9 @@ type TestUnexportedField struct {
 ```
 
 #Contributing
-If you would like to contribute, fork the project, write tests for any new code and ensure that you don't break existing
+If you would like to contribute, don't be shy! Fork the project, write tests for any new code and ensure that you don't break existing
 functionality by running the current tests. If you're looking to submit changes upstream, it would be a good idea to
-discuss it with me first. I'm available via email, through Github, or on the Gophers slack team under the st channel 
+discuss it with me first. I'm available via email (ccooper@sessionm.com), through Github, or on the Gophers slack team under the st channel 
 (https://blog.gopheracademy.com/gophers-slack-community/).
 
 If you do submit a pull request, I will review it and I will merge it if it's in line with my vision for the project.
