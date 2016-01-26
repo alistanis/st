@@ -1,6 +1,5 @@
-# st
 ST - Struct Tagger for Go
-
+---
 st is a command line utility for tagging structs in your Go code.
 
 [![Build Status](https://travis-ci.org/alistanis/st.svg?branch=master)](https://travis-ci.org/alistanis/st) ![Report Card](http://goreportcard.com/badge/alistanis/st)
@@ -12,11 +11,29 @@ Get it:
 If you want to run the tests, you'll need the goconvey package:
 ```go get github.com/smartystreets/goconvey```
 
+Goals
+---
+```
+1. [x] Command Line Support
+	* [x] Write tags to buffer(default behavior) and to file (with -w)
+	* [x] Supports multiple operation modes
+		* [x] Append
+		* [x] Overwrite
+		* [x] Skip existing tags
+		* [x] Field Exclusion
+		* [x] Struct Exclusion
+		* [ ] Explicit Struct/field inclusion
+		* [ ] Go Generate support 
+2. [x] Tests
+	* [x] Main Package tests
+	* [x] Parse Package tests
+	* [x] Flags package tests
+	* 
+```
 
-#Usage
-```
-st -h or st --help
-```
+Usage
+---
+>```st -h or st --help```
 
 ```
 usage: st [flags] [path ...]
@@ -52,7 +69,8 @@ usage: st [flags] [path ...]
     	Sets mode to write to source file. The default is a dry run that prints the results to stdout.
 ```
 
-#Notes:
+Notes
+---
 
 Defaults are set to what I consider to be reasonable. This means that ST won't write to your source file unless you
 provide the -w or --write flags, it will simply print what the result will be to your buffer. The default tag it will use
@@ -64,37 +82,42 @@ tag that you have specified, let's use json as our example, it will leave that t
 it will append to the existing tag with the msgpack key/value.
 
 
-#Overwrite Examples: 
+Overwrite Examples 
+---
+>```st --overwrite --tag-name=msgpack $GOFILE```
+
 ```go
-st --overwrite --tag-name=msgpack $GOFILE
 type Test struct { F field `json:"f"`}
     becomes
 type Test struct { F field `msgpack:"f"`}
 ```
+>```st --overwrite --tag-name=json --case=camel $GOFILE```
 
 ```go
-st --overwrite --tag-name=json --case=camel $GOFILE
 type Test struct { F field `json:"f"`}
     becomes
 type Test struct { F field `json:"F"`}
 ```
 
-#Append Examples:
+Append Examples
+---
+>```st --append --case=camel --tag-name=json $GOFILE```
+
 ```go
-st --append --case=camel --tag-name=json $GOFILE
 type Test struct { F field `json:"f"`}
     becomes (the tag is left alone because it is already there)
 type Test struct { F field `json:"f"`}
 ```
+>```st --append --tag-name=msgpack $GOFILE```
 
 ```go
-st --append --tag-name=msgpack $GOFILE
 type Test struct { F field `json:"f"`}
     becomes
 type Test struct { F field `msgpack:"f" json:"f"`}
 ```
 
-#Contributing & Contact
+Contributing & Contact
+---
 If you would like to contribute, don't be shy! Fork the project, write tests for any new code and ensure that you don't break existing
 functionality by running the current tests. If you're looking to submit changes upstream, it would be a good idea to
 discuss it with me first. I'm available via [email](ccooper@sessionm.com), through Github, on the
@@ -103,9 +126,10 @@ discuss it with me first. I'm available via [email](ccooper@sessionm.com), throu
 If you do submit a pull request, I will review it and I will merge it if it's in line with my vision for the project.
 
 
-#Further examples
+Further examples
+---
 
-Contents of etc.go before running
+>Contents of etc.go before running any of the following
 
 ```go
 package etc
@@ -114,57 +138,20 @@ type TestStruct struct {
 	Int             int
 	Int64           int64
 	IntSlice        []int
-	Int64Slice      []int64
-	String          string
-	StringSlice     []string
-	Float           float64
-	FloatSlice      []float64
-	UIntPointer     uintptr
-	Rune            rune
-	RuneSlice       []rune
-	Byte            byte
-	ByteSlice       []byte
-	MapStringString map[string]string
-	MapStringInt    map[string]int
-	MapIntString    map[int]string
+	...
 }
 
 type TestStructWithTagsSnake struct {
 	Int             int               `json:"int"`
 	Int64           int64             `json:"int_64"`
 	IntSlice        []int             `json:"int_slice"`
-	Int64Slice      []int64           `json:"int_64_slice"`
-	String          string            `json:"string"`
-	StringSlice     []string          `json:"string_slice"`
-	Float           float64           `json:"float"`
-	FloatSlice      []float64         `json:"float_slice"`
-	UIntPointer     uintptr           `json:"u_int_pointer"`
-	Rune            rune              `json:"rune"`
-	RuneSlice       []rune            `json:"rune_slice"`
-	Byte            byte              `json:"byte"`
-	ByteSlice       []byte            `json:"byte_slice"`
-	MapStringString map[string]string `json:"map_string_string"`
-	MapStringInt    map[string]int    `json:"map_string_int"`
-	MapIntString    map[int]string    `json:"map_int_string"`
+	...
 }
 
 type TestStructWithTagsCamel struct {
 	Int             int               `json:"Int"`
 	Int64           int64             `json:"Int64"`
-	IntSlice        []int             `json:"IntSlice"`
-	Int64Slice      []int64           `json:"Int64Slice"`
-	String          string            `json:"String"`
-	StringSlice     []string          `json:"StringSlice"`
-	Float           float64           `json:"Float"`
-	FloatSlice      []float64         `json:"FloatSlice"`
-	UIntPointer     uintptr           `json:"UIntPointer"`
-	Rune            rune              `json:"Rune"`
-	RuneSlice       []rune            `json:"RuneSlice"`
-	Byte            byte              `json:"Byte"`
-	ByteSlice       []byte            `json:"ByteSlice"`
-	MapStringString map[string]string `json:"MapStringString"`
-	MapStringInt    map[string]int    `json:"MapStringInt"`
-	MapIntString    map[int]string    `json:"MapIntString"`
+	...
 }
 
 type TestUnexportedField struct {
@@ -174,70 +161,33 @@ type TestUnexportedField struct {
 
 ```
 
-- Append to existing tags with the tag msgpack (use -w flag to write to original source file)
-
+> Append to existing tags with the tag msgpack (use -w flag to write to original source file) 
 ```
 st -s -a -v -t=msgpack $GOPATH/src/github.com/alistanis/st/etc/etc.go
 ```
 
-```go
+```go 
 package etc
 
 type TestStruct struct {
 	Int             int               `msgpack:"int"`
 	Int64           int64             `msgpack:"int_64"`
 	IntSlice        []int             `msgpack:"int_slice"`
-	Int64Slice      []int64           `msgpack:"int_64_slice"`
-	String          string            `msgpack:"string"`
-	StringSlice     []string          `msgpack:"string_slice"`
-	Float           float64           `msgpack:"float"`
-	FloatSlice      []float64         `msgpack:"float_slice"`
-	UIntPointer     uintptr           `msgpack:"u_int_pointer"`
-	Rune            rune              `msgpack:"rune"`
-	RuneSlice       []rune            `msgpack:"rune_slice"`
-	Byte            byte              `msgpack:"byte"`
-	ByteSlice       []byte            `msgpack:"byte_slice"`
-	MapStringString map[string]string `msgpack:"map_string_string"`
-	MapStringInt    map[string]int    `msgpack:"map_string_int"`
-	MapIntString    map[int]string    `msgpack:"map_int_string"`
+	...
 }
 
 type TestStructWithTagsSnake struct {
 	Int             int               `msgpack:"int" json:"int"`
 	Int64           int64             `msgpack:"int_64" json:"int_64"`
 	IntSlice        []int             `msgpack:"int_slice" json:"int_slice"`
-	Int64Slice      []int64           `msgpack:"int_64_slice" json:"int_64_slice"`
-	String          string            `msgpack:"string" json:"string"`
-	StringSlice     []string          `msgpack:"string_slice" json:"string_slice"`
-	Float           float64           `msgpack:"float" json:"float"`
-	FloatSlice      []float64         `msgpack:"float_slice" json:"float_slice"`
-	UIntPointer     uintptr           `msgpack:"u_int_pointer" json:"u_int_pointer"`
-	Rune            rune              `msgpack:"rune" json:"rune"`
-	RuneSlice       []rune            `msgpack:"rune_slice" json:"rune_slice"`
-	Byte            byte              `msgpack:"byte" json:"byte"`
-	ByteSlice       []byte            `msgpack:"byte_slice" json:"byte_slice"`
-	MapStringString map[string]string `msgpack:"map_string_string" json:"map_string_string"`
-	MapStringInt    map[string]int    `msgpack:"map_string_int" json:"map_string_int"`
-	MapIntString    map[int]string    `msgpack:"map_int_string" json:"map_int_string"`
+	...
 }
 
 type TestStructWithTagsCamel struct {
 	Int             int               `msgpack:"int" json:"Int"`
 	Int64           int64             `msgpack:"int_64" json:"Int64"`
 	IntSlice        []int             `msgpack:"int_slice" json:"IntSlice"`
-	Int64Slice      []int64           `msgpack:"int_64_slice" json:"Int64Slice"`
-	String          string            `msgpack:"string" json:"String"`
-	StringSlice     []string          `msgpack:"string_slice" json:"StringSlice"`
-	Float           float64           `msgpack:"float" json:"Float"`
-	FloatSlice      []float64         `msgpack:"float_slice" json:"FloatSlice"`
-	UIntPointer     uintptr           `msgpack:"u_int_pointer" json:"UIntPointer"`
-	Rune            rune              `msgpack:"rune" json:"Rune"`
-	RuneSlice       []rune            `msgpack:"rune_slice" json:"RuneSlice"`
-	Byte            byte              `msgpack:"byte" json:"Byte"`
-	ByteSlice       []byte            `msgpack:"byte_slice" json:"ByteSlice"`
-	MapStringString map[string]string `msgpack:"map_string_string" json:"MapStringString"`
-	MapStringInt    map[string]int    `msgpack:"map_string_int" json:"MapStringInt"`
-	MapIntString    map[int]string    `msgpack:"map_int_string" json:"MapIntString"`
+	...
 }
 
 type TestUnexportedField struct {
@@ -245,9 +195,7 @@ type TestUnexportedField struct {
 	ExportedField   int `msgpack:"exported_field"`
 }
 ```
-
-- Ignore a specific field (-i) and ignore a specific struct (-is)
-
+>Ignore a specific field (-i) and ignore a specific struct (-is)
 ```
 st -s -a -v -i=ExportedField -is=TestStructWithTagsCamel -t=msgpack $GOPATH/src/github.com/alistanis/st/etc/etc.go
 ```
@@ -259,57 +207,21 @@ type TestStruct struct {
 	Int             int               `msgpack:"int"`
 	Int64           int64             `msgpack:"int_64"`
 	IntSlice        []int             `msgpack:"int_slice"`
-	Int64Slice      []int64           `msgpack:"int_64_slice"`
-	String          string            `msgpack:"string"`
-	StringSlice     []string          `msgpack:"string_slice"`
-	Float           float64           `msgpack:"float"`
-	FloatSlice      []float64         `msgpack:"float_slice"`
-	UIntPointer     uintptr           `msgpack:"u_int_pointer"`
-	Rune            rune              `msgpack:"rune"`
-	RuneSlice       []rune            `msgpack:"rune_slice"`
-	Byte            byte              `msgpack:"byte"`
-	ByteSlice       []byte            `msgpack:"byte_slice"`
-	MapStringString map[string]string `msgpack:"map_string_string"`
-	MapStringInt    map[string]int    `msgpack:"map_string_int"`
-	MapIntString    map[int]string    `msgpack:"map_int_string"`
+	...
 }
 
 type TestStructWithTagsSnake struct {
 	Int             int               `msgpack:"int" json:"int"`
 	Int64           int64             `msgpack:"int_64" json:"int_64"`
 	IntSlice        []int             `msgpack:"int_slice" json:"int_slice"`
-	Int64Slice      []int64           `msgpack:"int_64_slice" json:"int_64_slice"`
-	String          string            `msgpack:"string" json:"string"`
-	StringSlice     []string          `msgpack:"string_slice" json:"string_slice"`
-	Float           float64           `msgpack:"float" json:"float"`
-	FloatSlice      []float64         `msgpack:"float_slice" json:"float_slice"`
-	UIntPointer     uintptr           `msgpack:"u_int_pointer" json:"u_int_pointer"`
-	Rune            rune              `msgpack:"rune" json:"rune"`
-	RuneSlice       []rune            `msgpack:"rune_slice" json:"rune_slice"`
-	Byte            byte              `msgpack:"byte" json:"byte"`
-	ByteSlice       []byte            `msgpack:"byte_slice" json:"byte_slice"`
-	MapStringString map[string]string `msgpack:"map_string_string" json:"map_string_string"`
-	MapStringInt    map[string]int    `msgpack:"map_string_int" json:"map_string_int"`
-	MapIntString    map[int]string    `msgpack:"map_int_string" json:"map_int_string"`
+	...
 }
 
 type TestStructWithTagsCamel struct {
 	Int             int               `json:"Int"`
 	Int64           int64             `json:"Int64"`
 	IntSlice        []int             `json:"IntSlice"`
-	Int64Slice      []int64           `json:"Int64Slice"`
-	String          string            `json:"String"`
-	StringSlice     []string          `json:"StringSlice"`
-	Float           float64           `json:"Float"`
-	FloatSlice      []float64         `json:"FloatSlice"`
-	UIntPointer     uintptr           `json:"UIntPointer"`
-	Rune            rune              `json:"Rune"`
-	RuneSlice       []rune            `json:"RuneSlice"`
-	Byte            byte              `json:"Byte"`
-	ByteSlice       []byte            `json:"ByteSlice"`
-	MapStringString map[string]string `json:"MapStringString"`
-	MapStringInt    map[string]int    `json:"MapStringInt"`
-	MapIntString    map[int]string    `json:"MapIntString"`
+	...
 }
 
 type TestUnexportedField struct {
