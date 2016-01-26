@@ -7,18 +7,20 @@ import (
 
 	"github.com/alistanis/st/parse"
 	"github.com/alistanis/st/sterrors"
+	"github.com/gopherjs/gopherjs/js"
 )
 
 var (
 	Case = parse.DefaultCase
 	Tag  = parse.DefaultTag
 
-	Append    bool
-	Overwrite bool
-	c         bool
-	s         bool
-	Verbose   bool
-	Write     bool
+	Append          bool
+	Overwrite       bool
+	c               bool
+	s               bool
+	Verbose         bool
+	Write           bool
+	ServeStaticHttp bool
 
 	IgnoredFieldsString  string
 	IgnoredStructsString string
@@ -55,6 +57,7 @@ func BoolVars() {
 	flag.BoolVar(&Write, "write", false, "Sets mode to write to source file. The default is a dry run that prints the results to stdout.")
 	flag.BoolVar(&Overwrite, "o", false, "Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.")
 	flag.BoolVar(&Overwrite, "overwrite", false, "Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.")
+	flag.BoolVar(&ServeStaticHttp, "serve-http", false, "Runs a server daemon that serves static content")
 }
 
 func SetVars() {
@@ -69,43 +72,44 @@ func ParseFlags() error {
 }
 
 func verify() error {
+	if !ServeStaticHttp && js.Global == nil {
+		if flag.NArg() < 1 {
+			return sterrors.NoPathsGiven
+		}
 
-	if flag.NArg() < 1 {
-		return sterrors.NoPathsGiven
-	}
+		if c && s {
+			return sterrors.MutuallyExclusiveParameters("c", "s")
+		}
 
-	if c && s {
-		return sterrors.MutuallyExclusiveParameters("c", "s")
-	}
+		if Overwrite && Append {
+			return sterrors.MutuallyExclusiveParameters("o", "a")
+		}
 
-	if Overwrite && Append {
-		return sterrors.MutuallyExclusiveParameters("o", "a")
-	}
+		if c {
+			Case = Camel
+		}
 
-	if c {
-		Case = Camel
-	}
+		if s {
+			Case = Snake
+		}
 
-	if s {
-		Case = Snake
-	}
+		if Overwrite {
+			AppendMode = parse.Overwrite
+		}
 
-	if Overwrite {
-		AppendMode = parse.Overwrite
-	}
+		if Append {
+			AppendMode = parse.Append
+		}
 
-	if Append {
-		AppendMode = parse.Append
-	}
+		sterrors.Verbose = Verbose
 
-	sterrors.Verbose = Verbose
+		if IgnoredFieldsString != "" {
+			parse.IgnoredFields = strings.Split(IgnoredFieldsString, ",")
+		}
 
-	if IgnoredFieldsString != "" {
-		parse.IgnoredFields = strings.Split(IgnoredFieldsString, ",")
-	}
-
-	if IgnoredStructsString != "" {
-		parse.IgnoredStructs = strings.Split(IgnoredStructsString, ",")
+		if IgnoredStructsString != "" {
+			parse.IgnoredStructs = strings.Split(IgnoredStructsString, ",")
+		}
 	}
 	return nil
 }
