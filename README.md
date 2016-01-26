@@ -2,7 +2,7 @@ ST - Struct Tagger for Go
 ---
 st is a command line utility for tagging structs in your Go code.
 
-[![Build Status](https://travis-ci.org/alistanis/st.svg?branch=master)](https://travis-ci.org/alistanis/st) ![Report Card](http://goreportcard.com/badge/alistanis/st)
+[![Build Status](https://travis-ci.org/alistanis/st.svg?branch=master)](https://travis-ci.org/alistanis/st) ![Report Card](http://goreportcard.com/badge/alistanis/st) [![Gitter](https://badges.gitter.im/alistanis/st.svg)](https://gitter.im/alistanis/st?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 ---
 
 Get it: 
