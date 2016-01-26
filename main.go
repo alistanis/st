@@ -14,6 +14,7 @@ func run() int {
 	err := flags.ParseFlags()
 	if err != nil {
 		fmt.Println(err)
+		usage()
 		return -1
 	}
 
