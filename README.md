@@ -11,10 +11,10 @@ Get it:
 If you want to run the tests, you'll need the goconvey package:
 ```go get github.com/smartystreets/goconvey```
 
-Goals
+Roadmap
 ---
 ```
-1. [x] Command Line Support
+1. [-] Command Line Support
 	* [x] Write tags to buffer(default behavior) and to file (with -w)
 	* [x] Supports multiple operation modes
 		* [x] Append
@@ -24,11 +24,20 @@ Goals
 		* [x] Struct Exclusion
 		* [ ] Explicit Struct/field inclusion
 		* [ ] Go Generate support 
-2. [x] Tests
+2. [ ] Web Application
+	* [x] Basic static site handler (not in master)
+	* [ ] Side by side input/output
+	* [ ] Make it pretty  
+3. [x] Tests/Build/Deploy
 	* [x] Main Package tests
 	* [x] Parse Package tests
 	* [x] Flags package tests
-	* 
+	* [x] Travis Integration
+		* [x] Run tests automatically 
+		* [x] Build notifications
+4. [x] Miscellaneous
+	* [x] Gitter Integration
+	* [x] Slack Channel
 ```
 
 Usage
