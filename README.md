@@ -66,18 +66,14 @@ it will append to the existing tag with the msgpack key/value.
 st --overwrite --tag-name=msgpack $GOFILE
 
 type Test struct { F field `json:"f"`}
-```
-becomes
-```
+    becomes
 type Test struct { F field `msgpack:"f"`}
 ```
 
 ```
 st --overwrite --tag-name=json --case=camel $GOFILE
 type Test struct { F field `json:"f"`}
-```
-becomes
-```
+    becomes
 type Test struct { F field `json:"F"`}
 ```
 
@@ -85,18 +81,14 @@ type Test struct { F field `json:"F"`}
 ```
 st --append --case=camel --tag-name=json $GOFILE
 type Test struct { F field `json:"f"`}
-```
-becomes (the tag is left alone because it is already there)
-```
+    becomes (the tag is left alone because it is already there)
 type Test struct { F field `json:"f"`}
 ```
 
 ```
 st --append --tag-name=msgpack $GOFILE
 type Test struct { F field `json:"f"`}
-```
-becomes
-```
+    becomes
 type Test struct { F field `msgpack:"f" json:"f"`}
 ```
 
