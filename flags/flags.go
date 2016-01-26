@@ -2,6 +2,7 @@ package flags
 
 import (
 	"flag"
+	"os"
 	"strings"
 
 	"github.com/alistanis/st/parse"
@@ -107,4 +108,16 @@ func verify() error {
 		parse.IgnoredStructs = strings.Split(IgnoredStructsString, ",")
 	}
 	return nil
+}
+
+// This function is a near copy of the flag.ResetForTesting(usage func()) function.
+func ResetFlags() {
+	flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+}
+
+// Clears flags and sets os.Args to os.Args[0] (program name) and then to the list of whatever parameters are given after
+func SetArgs(s []string) {
+	ResetFlags()
+	os.Args = []string{os.Args[0]}
+	os.Args = append(os.Args, s...)
 }
