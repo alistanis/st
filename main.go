@@ -9,12 +9,29 @@ import (
 	"github.com/alistanis/st/parse"
 )
 
+var (
+	exitFunction = defaultExitFunc
+)
+
+func defaultExitFunc(code int) {
+	os.Exit(code)
+}
+
+func exit(code int) {
+	if exitFunction != nil {
+		exitFunction(code)
+	} else {
+		defaultExitFunc(code)
+	}
+}
+
 func run() int {
 	flag.Usage = usage
 	err := flags.ParseFlags()
 	if err != nil {
 		fmt.Println(err)
 		usage()
+		return -1
 	}
 
 	options := &parse.Options{
@@ -37,9 +54,9 @@ func run() int {
 func usage() {
 	fmt.Fprintf(os.Stderr, "usage: st [flags] [path ...]\n")
 	flag.PrintDefaults()
-	os.Exit(2)
+	exit(-2)
 }
 
 func main() {
-	os.Exit(run())
+	exit(run())
 }
