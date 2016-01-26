@@ -62,7 +62,7 @@ func TestErrors(t *testing.T) {
 	})
 
 	con.Convey("Mutually exclusive parameters returns an error in the format we expect", t, func() {
-		err := MutuallyExclusiveParameters("1", "2")
+		err := ErrMutuallyExclusiveParameters("1", "2")
 		con.So(err.Error(), con.ShouldEqual, "Mutually exclusive parameters provided: 1 and 2")
 	})
 

@@ -6,15 +6,17 @@ import (
 )
 
 var (
+	// Verbose determines whether or not Printf will print anything
 	Verbose      = false
-	NoPathsGiven = errors.New("No paths to any .go files were provided.")
+	ErrNoPathsGiven = errors.New("No paths to any .go files were provided.")
 )
 
-func MutuallyExclusiveParameters(p, p2 string) error {
+// ErrMutuallyExclusiveParameters takes two inputs and returns a canned error response
+func ErrMutuallyExclusiveParameters(p, p2 string) error {
 	return fmt.Errorf("Mutually exclusive parameters provided: %s and %s", p, p2)
 }
 
-// Print a string depending on verbosity... should be in a debug package?
+// Printf prints a string depending on verbosity... should be in a debug package?
 func Printf(s string, args ...interface{}) {
 	if Verbose {
 		fmt.Printf(s, args...)

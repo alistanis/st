@@ -69,7 +69,7 @@ func TestFlagErrors(t *testing.T) {
 			SetArgs([]string{})
 			err := ParseFlags()
 			So(err, ShouldNotBeNil)
-			So(err, ShouldEqual, sterrors.NoPathsGiven)
+			So(err, ShouldEqual, sterrors.ErrNoPathsGiven)
 		})
 
 		Convey("Given a set of mismatched case flags", func() {
@@ -77,7 +77,7 @@ func TestFlagErrors(t *testing.T) {
 				SetArgs([]string{"-c", "-s", ""})
 				err := ParseFlags()
 				So(err, ShouldNotBeNil)
-				So(err.Error(), ShouldEqual, sterrors.MutuallyExclusiveParameters("c", "s").Error())
+				So(err.Error(), ShouldEqual, sterrors.ErrMutuallyExclusiveParameters("c", "s").Error())
 			})
 		})
 
@@ -86,7 +86,7 @@ func TestFlagErrors(t *testing.T) {
 				SetArgs([]string{"-a", "-o", ""})
 				err := ParseFlags()
 				So(err, ShouldNotBeNil)
-				So(err.Error(), ShouldEqual, sterrors.MutuallyExclusiveParameters("o", "a").Error())
+				So(err.Error(), ShouldEqual, sterrors.ErrMutuallyExclusiveParameters("o", "a").Error())
 			})
 		})
 

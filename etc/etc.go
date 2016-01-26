@@ -1,5 +1,6 @@
 package etc
 
+// TestStruct exists to be used as an example
 type TestStruct struct {
 	Int             int
 	Int64           int64
@@ -19,6 +20,7 @@ type TestStruct struct {
 	MapIntString    map[int]string
 }
 
+// TestStructWithTagsSnake exists to be used as an example of a struct with existing struct tags in snake case
 type TestStructWithTagsSnake struct {
 	Int             int               `json:"int"`
 	Int64           int64             `json:"int_64"`
@@ -38,6 +40,7 @@ type TestStructWithTagsSnake struct {
 	MapIntString    map[int]string    `json:"map_int_string"`
 }
 
+// TestStructWithTagsCamel exists to be used as an example of a struct with existing struct tags in camel case
 type TestStructWithTagsCamel struct {
 	Int             int               `json:"Int"`
 	Int64           int64             `json:"Int64"`
@@ -57,6 +60,7 @@ type TestStructWithTagsCamel struct {
 	MapIntString    map[int]string    `json:"MapIntString"`
 }
 
+// TestUnexportedField exists to show behavior for unexported fields (it will not be tagged)
 type TestUnexportedField struct {
 	unexportedField int
 	ExportedField   int
