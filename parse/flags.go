@@ -68,7 +68,7 @@ func SetVars() {
 	GoFile = os.Getenv("GOFILE")
 }
 
-// ParseFlags sets up command line bindings, calls flagParse(), and calls verify() to check command line flags
+// Flags sets up command line bindings, calls flagParse(), and calls verify() to check command line flags
 func Flags() error {
 	SetVars()
 	flag.Parse()
