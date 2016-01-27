@@ -339,6 +339,13 @@ func TestGoGenerate(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(lastCommentWithGenerateTag, ShouldEqual, "@st -tag-name=msgpack")
 	})
+
+	Convey("We can obtain a new comment directive by providing a legitimate test source", t, func() {
+		cd, err := NewCommentDirective(goGenCommentData)
+		So(err, ShouldBeNil)
+		So(cd, ShouldNotBeNil)
+		So(len(cd.Args()), ShouldBeGreaterThan, 0)
+	})
 }
 
 func TestErrors(t *testing.T) {
