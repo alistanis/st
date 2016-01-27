@@ -1,25 +1,24 @@
-package flags
+package parse
 
 import (
 	"flag"
 	"os"
 	"strings"
 
-	"github.com/alistanis/st/parse"
 	"github.com/alistanis/st/sterrors"
 )
 
 var (
 	// Case determines the case to use when tagging structs - either Camel or Snake
-	Case = parse.DefaultCase
+	Case = DefaultCase
 	// Tag determines the tag to use when tagging structs - default is json
-	Tag = parse.DefaultTag
+	Tag = DefaultTag
 	// Append is true if -a or -append are provided as command line flags - appends to tags instead of overwriting or skipping entirely
-	Append bool
+	FlagAppend bool
 	// Overwrite is true if -o or -overwrite are provided as command line flags - overwrites existing tags
-	Overwrite bool
-	c         bool
-	s         bool
+	FlagOverwrite bool
+	c             bool
+	s             bool
 	// Verbose sets the default for how much information is printed to standard out
 	Verbose bool
 	// Write is true if -w or -write are provided as command line flags - this will write to the original source file
@@ -29,18 +28,11 @@ var (
 	// IgnoredStructsString is a comma separated list of ignored structs provided as a command line flag
 	IgnoredStructsString string
 	// AppendMode is the mode that ST will operate in. Default is to skip existing tags, can be set to Append or Overwrite
-	AppendMode = parse.SkipExisting
+	AppendMode = SkipExisting
 	// TagMode is the mode that ST operates on when tagging. Default is to tag all structs/fields.
-	TagMode = parse.TagAll
+	TagMode = TagAll
 	// GoFile is the name of the GoFile as given by go generate to os.Environ ($GOFILE)
 	GoFile string
-)
-
-const (
-	// Camel is a constant string for 'camel'
-	Camel = "camel"
-	// Snake is a constant string for 'snake'
-	Snake = "snake"
 )
 
 // stringVars sets up all string command line variable bindings
@@ -59,14 +51,14 @@ func boolVars() {
 	flag.BoolVar(&c, "camel", false, "Sets the struct tag to camel case")
 	flag.BoolVar(&s, "s", false, "Sets the struct tag to snake case.")
 	flag.BoolVar(&s, "snake", false, "Sets the struct tag to snake case.")
-	flag.BoolVar(&Append, "a", false, "Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.")
-	flag.BoolVar(&Append, "append", false, "Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.")
+	flag.BoolVar(&FlagAppend, "a", false, "Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.")
+	flag.BoolVar(&FlagAppend, "append", false, "Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.")
 	flag.BoolVar(&Verbose, "v", false, "Sets mode to verbose.")
 	flag.BoolVar(&Verbose, "verbose", false, "Sets mode to verbose.")
 	flag.BoolVar(&Write, "w", false, "Sets mode to write to source file. The default is a dry run that prints the results to stdout.")
 	flag.BoolVar(&Write, "write", false, "Sets mode to write to source file. The default is a dry run that prints the results to stdout.")
-	flag.BoolVar(&Overwrite, "o", false, "Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.")
-	flag.BoolVar(&Overwrite, "overwrite", false, "Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.")
+	flag.BoolVar(&FlagOverwrite, "o", false, "Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.")
+	flag.BoolVar(&FlagOverwrite, "overwrite", false, "Sets mode to overwrite mode. Will overwrite existing tags (completely). Default behavior skips existing tags.")
 }
 
 // SetVars sets up all command line variable bindings
@@ -100,7 +92,7 @@ func verify() error {
 		return sterrors.ErrMutuallyExclusiveParameters("c", "s")
 	}
 
-	if Overwrite && Append {
+	if FlagOverwrite && FlagAppend {
 		return sterrors.ErrMutuallyExclusiveParameters("o", "a")
 	}
 
@@ -112,22 +104,22 @@ func verify() error {
 		Case = Snake
 	}
 
-	if Overwrite {
-		AppendMode = parse.Overwrite
+	if FlagOverwrite {
+		AppendMode = Overwrite
 	}
 
-	if Append {
-		AppendMode = parse.Append
+	if FlagAppend {
+		AppendMode = Append
 	}
 
 	sterrors.Verbose = Verbose
 
 	if IgnoredFieldsString != "" {
-		parse.IgnoredFields = strings.Split(IgnoredFieldsString, ",")
+		IgnoredFields = strings.Split(IgnoredFieldsString, ",")
 	}
 
 	if IgnoredStructsString != "" {
-		parse.IgnoredStructs = strings.Split(IgnoredStructsString, ",")
+		IgnoredStructs = strings.Split(IgnoredStructsString, ",")
 	}
 	return nil
 }
