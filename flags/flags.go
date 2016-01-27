@@ -32,6 +32,8 @@ var (
 	AppendMode = parse.SkipExisting
 	// TagMode is the mode that ST operates on when tagging. Default is to tag all structs/fields.
 	TagMode = parse.TagAll
+	// GoFile is the name of the GoFile as given by go generate to os.Environ ($GOFILE)
+	GoFile string
 )
 
 const (
@@ -49,7 +51,6 @@ func stringVars() {
 	flag.StringVar(&IgnoredFieldsString, "ignored-fields", "", "A comma separated list of fields to ignore. Will use the format json:\"-\".")
 	flag.StringVar(&IgnoredStructsString, "is", "", "A comma separated list of structs to ignore. Will not tag any fields in the struct.")
 	flag.StringVar(&IgnoredStructsString, "ignored-structs", "", "A comma separated list of structs to ignore. Will not tag any fields in the struct.")
-
 }
 
 // boolVars sets up all boolean command line variable bindings
@@ -72,6 +73,7 @@ func boolVars() {
 func SetVars() {
 	stringVars()
 	boolVars()
+	GoFile = os.Getenv("GOFILE")
 }
 
 // ParseFlags sets up command line bindings, calls flagParse(), and calls verify() to check command line flags
@@ -82,6 +84,13 @@ func ParseFlags() error {
 }
 
 func verify() error {
+
+	// If GoFile is set, we know that we're being run by go generate, so we append the file name as our last argument
+	// and we cheat so that we get the desired behavior
+	if GoFile != "" {
+		SetArgs(append(flag.Args(), GoFile))
+		flag.Parse()
+	}
 
 	if flag.NArg() < 1 {
 		return sterrors.ErrNoPathsGiven

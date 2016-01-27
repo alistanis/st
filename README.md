@@ -78,18 +78,17 @@ usage: st [flags] [path ...]
     	Sets mode to write to source file. The default is a dry run that prints the results to stdout.
 ```
 
-Notes
+Defaults
 ---
-
-Defaults are set to what I consider to be reasonable. This means that ST won't write to your source file unless you
-provide the -w or --write flags, it will simply print what the result will be to your buffer. The default tag it will use
-if no tag is specified is json, and the default case it uses is snake case. ST, by default, will skip any struct fields
-that already have tags. That behavior can be overridden by using the overwrite mode (-o or --overwrite), or append mode (-a or --append).
-
-Overwrite mode will completely overwrite an existing tag. Append mode is a little trickier. If an existing tag is there for the
+>
+* ST will not write to your source file unless you provide the **-w** or **-write** flags. Its default behavior prints the result to *STDOUT*
+* The default tag that ST uses is **json**
+* The default tagging mode is to *Skip Existing Tags* - you can change this behavior by providing one of the *Append* flags, **-a** or **-append**, or by using one of the *Overwrite* flags, **-o** or **-overwrite**
+* The default tagging case is *Snake Case* - this can be changed by providing either *Camel Case* flag, **-c** or **-camel**  
+>
+>Overwrite mode will completely overwrite an existing tag. Append mode is a little trickier. If an existing tag is there for the
 tag that you have specified, let's use json as our example, it will leave that tag alone. If you specify a different tag, like msgpack,
 it will append to the existing tag with the msgpack key/value.
-
 
 Overwrite Examples 
 ---
