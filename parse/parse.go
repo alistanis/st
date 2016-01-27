@@ -97,8 +97,7 @@ func (c *CommentDirective) Args() []string {
 	return c.FlagSet.Args()
 }
 
-/*
-   NewCommentDirective takes a string (which should be the text from an *ast.Comment), creates a new flag set using the comment
+/* NewCommentDirective takes a string (which should be the text from an *ast.Comment), creates a new flag set using the comment
    as the flag set name with flag.ContinueOnError - flag.ExitOnError will call os.Exit() - and then parses the flags
    Comments
 
@@ -109,8 +108,7 @@ func (c *CommentDirective) Args() []string {
    - It should only be one line
    - It should say //@st with no spaces
    - Commands given after //@st will be interpreted just like normal st commands
-   - $GOFILE will be passed in as the final argument
-*/
+   - $GOFILE will be passed in as the final argument */
 func NewCommentDirective(s string) (*CommentDirective, error) {
 	cd := &CommentDirective{BaseText: s, FlagSet: flag.NewFlagSet(s, flag.ContinueOnError)}
 	args := strings.Split(strings.TrimLeft(s, `//@st`), " ")

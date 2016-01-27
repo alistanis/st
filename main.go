@@ -26,7 +26,7 @@ func exit(code int) {
 
 func run() int {
 	flag.Usage = usage
-	err := parse.ParseFlags()
+	err := parse.Flags()
 	if err != nil {
 		fmt.Println(err)
 		usage()

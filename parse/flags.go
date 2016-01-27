@@ -13,9 +13,9 @@ var (
 	Case = DefaultCase
 	// Tag determines the tag to use when tagging structs - default is json
 	Tag = DefaultTag
-	// Append is true if -a or -append are provided as command line flags - appends to tags instead of overwriting or skipping entirely
+	// FlagAppend is true if -a or -append are provided as command line flags - appends to tags instead of overwriting or skipping entirely
 	FlagAppend bool
-	// Overwrite is true if -o or -overwrite are provided as command line flags - overwrites existing tags
+	// FlagOverwrite is true if -o or -overwrite are provided as command line flags - overwrites existing tags
 	FlagOverwrite bool
 	c             bool
 	s             bool
@@ -69,7 +69,7 @@ func SetVars() {
 }
 
 // ParseFlags sets up command line bindings, calls flagParse(), and calls verify() to check command line flags
-func ParseFlags() error {
+func Flags() error {
 	SetVars()
 	flag.Parse()
 	return verify()
