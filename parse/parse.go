@@ -99,11 +99,8 @@ func (c *CommentDirective) Args() []string {
 
 /* NewCommentDirective takes a string (which should be the text from an *ast.Comment), creates a new flag set using the comment
    as the flag set name with flag.ContinueOnError - flag.ExitOnError will call os.Exit() - and then parses the flags
-   Comments
-
-   1) I would pass in the *ast.Comment directly, but it is already initialized further up the call stack at this point
-   2) There is some hackery of the flag package going on in here
-
+   Comments: 1) I would pass in the *ast.Comment directly, but it is already initialized further up the call stack at this point
+   			 2) There is some hackery of the flag package going on in here
    s should be in the following format:
    - It should only be one line
    - It should say //@st with no spaces
