@@ -108,10 +108,6 @@ func init() {
 	}
 }
 
-func Cleanup() {
-
-}
-
 func TestSnakeCase(t *testing.T) {
 	Convey("Given sample code with multiple types of structs with tags/no tags", t, func() {
 		opts := DefaultOptions()
@@ -323,6 +319,25 @@ func TestFiles(t *testing.T) {
 			})
 		})
 
+	})
+}
+
+const (
+	goGenCommentData = `package test
+
+//@st -tag-name=msgpack
+type TestStruct struct {
+	Field string
+}
+`
+)
+
+func TestGoGenerate(t *testing.T) {
+	Convey("Given a test string with a go generate tag", t, func() {
+		data, err := ProcessBytes([]byte(goGenCommentData), "test.go")
+		So(data, ShouldNotBeNil)
+		So(err, ShouldBeNil)
+		So(lastCommentWithGenerateTag, ShouldEqual, "@st -tag-name=msgpack")
 	})
 }
 

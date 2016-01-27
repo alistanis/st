@@ -1,6 +1,7 @@
 package flags
 
 import (
+	"os"
 	"reflect"
 	"testing"
 
@@ -59,6 +60,24 @@ func TestFlags(t *testing.T) {
 			So(reflect.DeepEqual(parse.IgnoredStructs, []string{"ignore", "these", "structs"}), ShouldBeTrue)
 		})
 
+	})
+}
+
+func TestGoGenerateDetection(t *testing.T) {
+	Convey("Go generate detection testing", t, func() {
+		Convey("Given a fake $GOFILE", func() {
+
+			Convey("We can trick make sure that flags are set properly", func() {
+				os.Setenv("GOFILE", "test.go")
+				SetArgs([]string{})
+				err := ParseFlags()
+				So(err, ShouldBeNil)
+				So(GoFile, ShouldEqual, "test.go")
+			})
+			Reset(func() {
+				os.Setenv("GOFILE", "")
+			})
+		})
 	})
 }
 

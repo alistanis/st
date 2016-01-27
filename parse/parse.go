@@ -22,10 +22,6 @@ import (
 	"github.com/alistanis/st/sterrors"
 )
 
-var (
-	lastTypeName string
-)
-
 // Append modes
 const (
 	// Append will append to tags rather than overwriting them altogether
@@ -58,6 +54,8 @@ const (
 	Snake = "snake"
 	// Camel represents camel case
 	Camel = "camel"
+	// DefaultGenerateTag represents the default go generate tag that ST will respect
+	DefaultGenerateTag = "@st"
 )
 
 // Defaults
@@ -80,16 +78,23 @@ var (
 
 )
 
+// localGlobals
+var (
+	lastCommentWithGenerateTag string
+	lastTypeName               string
+)
+
 // DefaultOptions returns a new *Options with all default values initialized
 func DefaultOptions() *Options {
 	return &Options{
 		//Tags:       []string{DefaultTag},
-		Tag:        DefaultTag,
-		Case:       DefaultCase,
-		AppendMode: DefaultAppendMode,
-		TagMode:    DefaultTagMode,
-		DryRun:     true,
-		Verbose:    false}
+		Tag:         DefaultTag,
+		Case:        DefaultCase,
+		AppendMode:  DefaultAppendMode,
+		TagMode:     DefaultTagMode,
+		DryRun:      true,
+		Verbose:     false,
+		GenerateTag: DefaultGenerateTag}
 }
 
 // SetOptions sets the current options to the options provided. (This is not thread safe if called from a goroutine)
@@ -100,12 +105,13 @@ func SetOptions(o *Options) {
 // Options represents package behavior options - will be expanded to take a list of tags to support go generate
 type Options struct {
 	//Tags       []string
-	Tag        string
-	Case       string
-	AppendMode int
-	TagMode    int
-	DryRun     bool
-	Verbose    bool
+	Tag         string
+	Case        string
+	AppendMode  int
+	TagMode     int
+	DryRun      bool
+	Verbose     bool
+	GenerateTag string
 }
 
 // AndProcessFiles takes a list of paths, iterates over them, stats them, and then inspects source files
@@ -163,7 +169,7 @@ func ProcessBytes(data []byte, filename string) ([]byte, error) {
 // Parse returns an *ast.File, the data parsed, and an error
 func Parse(data []byte, filename string) (*ast.File, []byte, error) {
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, filename, string(data), 0)
+	f, err := parser.ParseFile(fset, filename, string(data), parser.ParseComments)
 	return f, data, err
 }
 
@@ -199,6 +205,10 @@ func Inspect(f *ast.File, srcFileData []byte) ([]byte, error) {
 				if t.Obj.Kind == ast.Typ {
 					lastTypeName = t.Obj.Name
 				}
+			}
+		case *ast.Comment:
+			if strings.Contains(t.Text, options.GenerateTag) {
+				lastCommentWithGenerateTag = strings.TrimLeft(t.Text, `//`)
 			}
 		case *ast.StructType:
 			data = TagStruct(data, t, offset)
@@ -294,6 +304,7 @@ func OverwriteStructTag(tag *ast.BasicLit, tagName string, offset *int, data []b
 }
 
 // IsIgnoredField checks if a field is an explicitly ignored field
+// Currently a slice is fine for performance, but we will replace these with maps later.
 func IsIgnoredField(s string) bool {
 	for _, f := range IgnoredFields {
 		if s == f {
