@@ -1,11 +1,10 @@
-package flags
+package parse
 
 import (
 	"os"
 	"reflect"
 	"testing"
 
-	"github.com/alistanis/st/parse"
 	"github.com/alistanis/st/sterrors"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -29,35 +28,35 @@ func TestFlags(t *testing.T) {
 		})
 
 		Convey("Append mode is skip existing by default", func() {
-			So(AppendMode, ShouldEqual, parse.SkipExisting)
+			So(AppendMode, ShouldEqual, SkipExisting)
 		})
 
 		Convey("We can set the append mode to overwrite", func() {
 			SetArgs([]string{"-o", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
-			So(AppendMode, ShouldEqual, parse.Overwrite)
+			So(AppendMode, ShouldEqual, Overwrite)
 		})
 
 		Convey("We can set append mode to append", func() {
 			SetArgs([]string{"-a", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
-			So(AppendMode, ShouldEqual, parse.Append)
+			So(AppendMode, ShouldEqual, Append)
 		})
 
 		Convey("We can set ignored fields", func() {
 			SetArgs([]string{"-i", "ignore,this,field", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
-			So(reflect.DeepEqual(parse.IgnoredFields, []string{"ignore", "this", "field"}), ShouldBeTrue)
+			So(reflect.DeepEqual(IgnoredFields, []string{"ignore", "this", "field"}), ShouldBeTrue)
 		})
 
 		Convey("We can set ignored structs", func() {
 			SetArgs([]string{"-is", "ignore,these,structs", ""})
 			err := ParseFlags()
 			So(err, ShouldBeNil)
-			So(reflect.DeepEqual(parse.IgnoredStructs, []string{"ignore", "these", "structs"}), ShouldBeTrue)
+			So(reflect.DeepEqual(IgnoredStructs, []string{"ignore", "these", "structs"}), ShouldBeTrue)
 		})
 
 	})

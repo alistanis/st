@@ -4,6 +4,7 @@ package parse
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -83,6 +84,40 @@ var (
 	lastCommentWithGenerateTag string
 	lastTypeName               string
 )
+
+// CommentDirective represents a comment with //@st at its beginning.
+// I am really not a fan of treating comments as anything more than a comment, but Go unfortunately has no other constructs
+type CommentDirective struct {
+	BaseText string
+	FlagSet  *flag.FlagSet
+}
+
+// Args returns the underlying FlagSet.Args()
+func (c *CommentDirective) Args() []string {
+	return c.FlagSet.Args()
+}
+
+/*
+   NewCommentDirective takes a string (which should be the text from an *ast.Comment), creates a new flag set using the comment
+   as the flag set name with flag.ContinueOnError - flag.ExitOnError will call os.Exit() - and then parses the flags
+   Comments
+
+   1) I would pass in the *ast.Comment directly, but it is already initialized further up the call stack at this point
+   2) There is some hackery of the flag package going on in here
+
+   s should be in the following format:
+   - It should only be one line
+   - It should say //@st with no spaces
+   - Commands given after //@st will be interpreted just like normal st commands
+   - $GOFILE will be passed in as the final argument
+*/
+func NewCommentDirective(s string) (*CommentDirective, error) {
+	cd := &CommentDirective{BaseText: s, FlagSet: flag.NewFlagSet(s, flag.ContinueOnError)}
+	args := strings.Split(strings.TrimLeft(s, `//@st`), " ")
+	SetArgs(append(args, os.Getenv("GOFILE")))
+	err := cd.FlagSet.Parse(args)
+	return cd, err
+}
 
 // DefaultOptions returns a new *Options with all default values initialized
 func DefaultOptions() *Options {
