@@ -3,7 +3,6 @@ package net
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -12,7 +11,7 @@ import (
 )
 
 const (
-	testStructWithPackageDecl = `package test
+	testStructWithPackageDecl = `package st
 type Struct struct {
 	Field string
 }
@@ -25,7 +24,7 @@ type Struct struct {
 )
 
 var (
-	expectedStructWithPackageDeclOutput = strings.Replace(`package test
+	expectedStructWithPackageDeclOutput = strings.Replace(`package st
 
 type Struct struct {
 	Field string %sjson:"field"%s
@@ -50,7 +49,6 @@ func TestStructTagHandler(t *testing.T) {
 			req, err := http.NewRequest("POST", "http://localhost:8080", buffer)
 			So(err, ShouldBeNil)
 			data, err := processStructTagRequest(req)
-			fmt.Println(string(data))
 			So(err, ShouldBeNil)
 			So(string(data), ShouldEqual, expectedStructWithPackageDeclOutput)
 		})
@@ -62,7 +60,6 @@ func TestStructTagHandler(t *testing.T) {
 			req, err := http.NewRequest("POST", "http://localhost:8080", buffer)
 			So(err, ShouldBeNil)
 			data, err := processStructTagRequest(req)
-			fmt.Println(string(data))
 			So(err, ShouldBeNil)
 			So(string(data), ShouldEqual, expectedStructNoPackageDecl)
 		})
@@ -72,7 +69,6 @@ func TestStructTagHandler(t *testing.T) {
 			So(err, ShouldBeNil)
 			data, err := processStructTagRequest(req)
 			So(err, ShouldNotBeNil)
-			fmt.Println(err.Error())
 			So(data, ShouldBeNil)
 		})
 

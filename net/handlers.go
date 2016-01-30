@@ -37,7 +37,6 @@ func processStructTagRequest(req *http.Request) (data []byte, err error) {
 
 	var body []byte
 	body, _ = ioutil.ReadAll(req.Body)
-
 	str := &StructTagRequest{}
 	err = json.Unmarshal(body, &str)
 	if err != nil {

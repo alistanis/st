@@ -6,7 +6,7 @@ import (
 	"github.com/alistanis/st/sterrors"
 )
 
-func Serve() {
+func ServeMux() *http.ServeMux {
 	servemux := http.NewServeMux()
 	servemux.HandleFunc("/tag_struct", func(rw http.ResponseWriter, req *http.Request) {
 		resp, err := processStructTagRequest(req)
@@ -18,5 +18,9 @@ func Serve() {
 		rw.WriteHeader(200)
 		rw.Write(resp)
 	})
-	http.ListenAndServe(":8080", servemux)
+	return servemux
+}
+
+func ServeHTTP(mux *http.ServeMux) {
+	http.ListenAndServe(":8080", mux)
 }
