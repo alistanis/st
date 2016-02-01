@@ -48,6 +48,9 @@ func TestListener(t *testing.T) {
 		server.Close()
 	})
 
+	// This is always a little trickier to test, because ServeHTTP is a blocking function we spin it off into another goroutine
+	// Then we create a boolean channel to block at the end of the Convey scope which we will send to at the end of second goroutine
+	// that possesses its own GoConvey context. This ensures that the server will run until the second goroutine resturns
 	Convey("Given an actual http server running in a goroutine", t, func() {
 		go func() {
 			ServeHTTP(ServeMux())
