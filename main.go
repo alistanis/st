@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/alistanis/st/flags"
 	"github.com/alistanis/st/parse"
 )
 
@@ -27,7 +26,7 @@ func exit(code int) {
 
 func run() int {
 	flag.Usage = usage
-	err := flags.ParseFlags()
+	err := parse.Flags()
 	if err != nil {
 		fmt.Println(err)
 		usage()
@@ -35,13 +34,13 @@ func run() int {
 	}
 
 	options := &parse.Options{
-		Tag:        flags.Tag,
-		Case:       flags.Case,
-		AppendMode: flags.AppendMode,
-		TagMode:    flags.TagMode,
+		Tag:        parse.Tag,
+		Case:       parse.Case,
+		AppendMode: parse.AppendMode,
+		TagMode:    parse.TagMode,
 		// this is confusing, I'll fix it later when changing documentation/flags behavior
-		DryRun:  !flags.Write,
-		Verbose: flags.Verbose}
+		DryRun:  !parse.Write,
+		Verbose: parse.Verbose}
 	parse.SetOptions(options)
 	err = parse.AndProcessFiles(flag.Args())
 	if err != nil {

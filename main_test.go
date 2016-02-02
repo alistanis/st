@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/alistanis/st/flags"
+	"github.com/alistanis/st/parse"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -66,14 +66,14 @@ func TestRun(t *testing.T) {
 			f, err := ioutil.TempFile(tempDir, "")
 			So(err, ShouldBeNil)
 
-			flags.SetArgs([]string{"-s", ""})
+			parse.SetArgs([]string{"-s", ""})
 			i := run()
 
 			So(err, ShouldBeNil)
 			So(i, ShouldEqual, -1)
 
 			f.WriteString(testData)
-			flags.SetArgs([]string{"-s", "-w", f.Name()})
+			parse.SetArgs([]string{"-s", "-w", f.Name()})
 			i = run()
 			So(i, ShouldEqual, 0)
 			data, err := ioutil.ReadFile(f.Name())

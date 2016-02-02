@@ -1,6 +1,8 @@
 package sterrors
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -64,6 +66,21 @@ func TestErrors(t *testing.T) {
 	con.Convey("Mutually exclusive parameters returns an error in the format we expect", t, func() {
 		err := ErrMutuallyExclusiveParameters("1", "2")
 		con.So(err.Error(), con.ShouldEqual, "Mutually exclusive parameters provided: 1 and 2")
+	})
+
+	con.Convey("We can test http formatting", t, func() {
+		testErr := errors.New("Test error")
+		errBytes := FormatHTTPError(testErr, 400)
+		type ErrResp struct {
+			Message string `json:"error"`
+			Code    int    `json:"status_code"`
+		}
+		fmt.Println(string(errBytes))
+		errResp := &ErrResp{}
+		err := json.Unmarshal(errBytes, &errResp)
+		con.So(err, con.ShouldBeNil)
+		con.So(errResp.Code, con.ShouldEqual, 400)
+		con.So(errResp.Message, con.ShouldEqual, testErr.Error())
 	})
 
 }
