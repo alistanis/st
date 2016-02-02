@@ -1,6 +1,7 @@
 package sterrors
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 )
@@ -22,4 +23,16 @@ func Printf(s string, args ...interface{}) {
 	if Verbose {
 		fmt.Printf(s, args...)
 	}
+}
+
+type HttpError struct {
+	Err  string `json:"error"`
+	Code int    `json:"status_code"`
+}
+
+func FormatHTTPError(err error, code int) []byte {
+	httpErr := &HttpError{Err: err.Error(), Code: code}
+	// we bury this error because we know that the type passed to it will always be the right type
+	data, _ := json.Marshal(httpErr)
+	return data
 }
