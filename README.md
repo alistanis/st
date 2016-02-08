@@ -25,7 +25,8 @@ Roadmap
 		* [x] Field Exclusion
 		* [x] Struct Exclusion
 		* [ ] Explicit Struct/field inclusion
-		* [ ] Go Generate support 
+		* [ ] Go Generate support
+	  [ ] Fix whatever is wrong with the windows version
 2. [ ] Web Application
 	* [x] Basic static site handler (not in master)
 	* [ ] Side by side input/output
