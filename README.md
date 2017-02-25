@@ -47,9 +47,9 @@ Usage
 
 ```
 usage: st [flags] [path ...]
-  -a	Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.
-  -append
-    	Sets mode to append mode. Will append to existing tags. Default behavior skips existing tags.
+  -a	Sets mode to Append mode. Will Append to existing tags. Default behavior skips existing tags.
+  -Append
+    	Sets mode to Append mode. Will Append to existing tags. Default behavior skips existing tags.
   -c	Sets the struct tag to camel case.
   -camel
     	Sets the struct tag to camel case
@@ -84,12 +84,12 @@ Defaults
 >
 * ST will not write to your source file unless you provide the **-w** or **-write** flags. Its default behavior prints the result to *STDOUT*
 * The default tag that ST uses is **json**
-* The default tagging mode is to *Skip Existing Tags* - you can change this behavior by providing one of the *Append* flags, **-a** or **-append**, or by using one of the *Overwrite* flags, **-o** or **-overwrite**
+* The default tagging mode is to *Skip Existing Tags* - you can change this behavior by providing one of the *Append* flags, **-a** or **-Append**, or by using one of the *Overwrite* flags, **-o** or **-overwrite**
 * The default tagging case is *Snake Case* - this can be changed by providing either *Camel Case* flag, **-c** or **-camel**  
 >
 >Overwrite mode will completely overwrite an existing tag. Append mode is a little trickier. If an existing tag is there for the
 tag that you have specified, let's use json as our example, it will leave that tag alone. If you specify a different tag, like msgpack,
-it will append to the existing tag with the msgpack key/value.
+it will Append to the existing tag with the msgpack key/value.
 
 Overwrite Examples 
 ---
@@ -110,14 +110,14 @@ type Test struct { F field `json:"F"`}
 
 Append Examples
 ---
->```st --append --case=camel --tag-name=json $GOFILE```
+>```st --Append --case=camel --tag-name=json $GOFILE```
 
 ```go
 type Test struct { F field `json:"f"`}
     becomes (the tag is left alone because it is already there)
 type Test struct { F field `json:"f"`}
 ```
->```st --append --tag-name=msgpack $GOFILE```
+>```st --Append --tag-name=msgpack $GOFILE```
 
 ```go
 type Test struct { F field `json:"f"`}
