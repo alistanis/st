@@ -51,7 +51,7 @@ func run() int {
 }
 
 func usage() {
-	fmt.Fprintf(os.Stderr, "usage: st [flags] [path ...]\n")
+	fmt.Fprintln(os.Stderr, "usage: st [flags] [path ...]")
 	flag.PrintDefaults()
 	exit(-2)
 }
